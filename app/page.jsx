@@ -1,49 +1,65 @@
 import Link from 'next/link';
 import BeforeAfter from '../components/BeforeAfter';
-import Menu from '../components/Menu';
+import RecentWork from '../components/RecentWork';
+import { WORK, REVIEWS } from '../lib/work';
 import styles from './home.module.css';
 
+// The home page shows off past work and reviews. Prices, how it works and the FAQ live on /services.
 export default function Home() {
+  const hasPhotos = WORK.every((w) => w.before && w.after);
   return (
     <>
-      <section className={styles.hero}>
-        <div className="wrap">
+      <section className={`wrap ${styles.hero}`}>
+        <div>
           <div className="eyebrow">Sneaker care, done by hand · Bronx, NY</div>
           <h1 className={styles.title}>Restored.<br /><em>Not replaced.</em></h1>
           <p className={styles.lede}>
-            Deep cleaning, icing, reverse oxidation, sole repair, suede care and custom paint.
-            Drop off in the Bronx or request a pickup, then follow every step online.
+            Every pair here came in worn, yellowed or scuffed and went home looking new. Drag the slider to see the difference.
           </p>
           <div className={styles.ctas}>
             <Link href="/book" className="btn primary">Book a service</Link>
-            <Link href="/quote" className="btn ghost">Get a paint quote</Link>
+            <Link href="/services" className="btn ghost">See services and prices</Link>
           </div>
-          <div className={styles.compare}><BeforeAfter /></div>
+          <div className={styles.facts}><span>Cleaning since 2020</span><span>Bronx drop-off</span><span>Evening pickup</span></div>
         </div>
-      </section>
-
-      <section id="services" className={styles.section}>
-        <div className="wrap">
-          <div className="eyebrow">Services</div>
-          <h2 className={styles.h2}>Pick it, see the price, book it.</h2>
-          <Menu />
-        </div>
-      </section>
-
-      <section className={styles.sectionAlt}>
-        <div className="wrap">
-          <div className="eyebrow">How it works</div>
-          <h2 className={styles.h2}>Four steps, start to finish.</h2>
-          <ol className={styles.steps}>
-            <li><span>01</span><strong>Book online</strong><p>Choose your services, or request a quote for a paint job.</p></li>
-            <li><span>02</span><strong>Drop off or we pick up</strong><p>Drop off in the Bronx, or request an evening pickup after 5pm.</p></li>
-            <li><span>03</span><strong>Restored by hand</strong><p>Every pair is inspected first. If it needs more work, we ask before doing anything.</p></li>
-            <li><span>04</span><strong>Back to you</strong><p>Track every stage with your order number until it's ready for pickup.</p></li>
-          </ol>
-        </div>
+        <BeforeAfter item={WORK[0]} />
       </section>
 
       <section className={styles.section}>
+        <div className="wrap">
+          <div className="eyebrow">Recent work</div>
+          <h2 className={styles.h2}>Before and after.</h2>
+          <RecentWork items={WORK.slice(1, 4)} />
+          <p className="muted small" style={{ marginTop: 12 }}>
+            Tap a pair to flip between before and after.{hasPhotos ? '' : ' Drawings for now; real photos are on the way.'}
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
+            <a className="btn ghost" href="https://instagram.com/_soulsneakers_" target="_blank" rel="noreferrer">More on Instagram @_soulsneakers_</a>
+          </div>
+        </div>
+      </section>
+
+      {REVIEWS.length > 0 && (
+        <section className={styles.sectionAlt}>
+          <div className="wrap">
+            <div className="eyebrow">What customers say</div>
+            <h2 className={styles.h2}>Pairs back in rotation.</h2>
+            <div className={styles.quotes}>
+              {REVIEWS.map((r) => (
+                <figure key={r.name + r.quote} className={styles.quote}>
+                  <blockquote>“{r.quote}”</blockquote>
+                  <figcaption>
+                    <strong>{r.name}</strong>
+                    {r.pair && <span className="muted small">{r.pair}</span>}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className={REVIEWS.length > 0 ? styles.section : styles.sectionAlt}>
         <div className={`wrap ${styles.about}`}>
           <div>
             <div className="eyebrow">About</div>
@@ -64,31 +80,15 @@ export default function Home() {
         </div>
       </section>
 
-      <section className={styles.sectionAlt}>
-        <div className="narrow">
-          <div className="eyebrow">Questions</div>
-          <h2 className={styles.h2}>Good to know.</h2>
-          <div className={styles.faq}>
-            <details open>
-              <summary>How long does it take?</summary>
-              <p>It depends on the service and how many pairs are ahead of yours. You'll see an estimate when you book, and you can track your order the whole way.</p>
-            </details>
-            <details>
-              <summary>Where do I drop off?</summary>
-              <p>In the Bronx. The exact address and hours are sent as soon as you book.</p>
-            </details>
-            <details>
-              <summary>Can you pick my shoes up?</summary>
-              <p>Yes, in the evenings after 5pm. Request a pickup when you book and we'll text you to confirm the time.</p>
-            </details>
-            <details>
-              <summary>What if my pair needs more work than I booked?</summary>
-              <p>We inspect every pair first and contact you before doing anything extra.</p>
-            </details>
-            <details>
-              <summary>Do you work on older pairs?</summary>
-              <p>Usually, yes. Some pairs from the '80s and '90s use materials that don't glue or restore reliably, so we'll tell you honestly what to expect after we look at them.</p>
-            </details>
+      <section className="wrap" style={{ paddingBlock: 64 }}>
+        <div className={styles.band}>
+          <div>
+            <h2 style={{ fontSize: 30 }}>Got a pair that needs this?</h2>
+            <p>Pick services for each pair and see the price before you book.</p>
+          </div>
+          <div className={styles.ctas} style={{ marginTop: 0 }}>
+            <Link href="/book" className="btn primary">Book a service</Link>
+            <Link href="/services" className={`btn ghost ${styles.bandGhost}`}>See prices</Link>
           </div>
         </div>
       </section>

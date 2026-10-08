@@ -3,6 +3,17 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { supabase, money } from '../lib/supabase';
+import Shoe from './Shoe';
+import styles from '../app/services/services.module.css';
+
+// What each service fixes, in plain words, plus a colorway for its picture.
+const DETAILS = {
+  deep_clean: { fixes: 'Dirt, stains, scuffs, smell', colors: { accent: '#C8102E', sole: '#C8102E' } },
+  icing: { fixes: 'Yellow see-through soles', colors: { accent: '#181D22', sole: '#9FD3F0' } },
+  oxidation: { fixes: 'Yellowed white midsoles', colors: { accent: '#E1E6EA', sole: '#FFFFFF' } },
+  suede: { fixes: 'Flat, stained or faded suede', colors: { upper: '#8A6A4F', accent: '#3E2C1E', sole: '#E8D9B5' } },
+  sole_repair: { fixes: 'Soles peeling or lifting', colors: { accent: '#E05A2B', sole: '#5F6870' } },
+};
 
 export default function Menu() {
   const [services, setServices] = useState(null);
@@ -28,20 +39,25 @@ export default function Menu() {
 
   return (
     <div style={{ display: 'grid', gap: 16 }}>
-      <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
+      <div className={styles.grid}>
         {fixed.map((s) => (
-          <Link key={s.id} href={`/book?s=${s.id}`} className="card" style={{ textDecoration: 'none', color: 'inherit', display: 'grid', gap: 6 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline' }}>
-              <span style={{ fontFamily: 'var(--display)', fontSize: 21 }}>{s.name}</span>
-              <span style={{ fontFamily: 'var(--mono)', color: 'var(--accent)' }}>{money(s.price_cents)}</span>
+          <div key={s.id} className={styles.svc}>
+            <div className={styles.thumb}><Shoe clean colors={DETAILS[s.id]?.colors} viewBox="110 60 400 260" /></div>
+            <div className={styles.body}>
+              <div className={styles.top}>
+                <h3>{s.name}</h3>
+                <span className={styles.price}>{money(s.price_cents)}</span>
+              </div>
+              <p className="small" style={{ margin: 0, color: 'var(--ink-soft)' }}>{s.description}</p>
+              {DETAILS[s.id] && <span className="muted" style={{ fontSize: 13 }}>Fixes: {DETAILS[s.id].fixes}</span>}
+              <Link href={`/book?s=${s.id}`} className={styles.bookLink}>Book this →</Link>
             </div>
-            <span className="muted small">{s.description}</span>
-          </Link>
+          </div>
         ))}
       </div>
 
       {bundles.length > 0 && (
-        <div className="soft" style={{ display: 'flex', flexWrap: 'wrap', gap: 16, justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="soft" style={{ display: 'flex', flexWrap: 'wrap', gap: 16, justifyContent: 'space-between', alignItems: 'center', padding: 20 }}>
           <div>
             <div style={{ fontFamily: 'var(--display)', fontSize: 21 }}>Deep clean bundles</div>
             <div className="muted small">Bring the whole rotation. Mix in other services per pair when you book.</div>
@@ -66,9 +82,9 @@ export default function Menu() {
         </Link>
       )}
 
-      {services.some((s) => s.price_is_sample) && (
-        <p className="muted small" style={{ margin: 0 }}>Prices are samples for testing and are subject to change.</p>
-      )}
+      <p className="muted small" style={{ margin: 0 }}>
+        Prices are per pair{services.some((s) => s.price_is_sample) ? ', samples for testing, and subject to change' : ''}. More than 10 pairs is a hefty job, and we'll quote it.
+      </p>
     </div>
   );
 }

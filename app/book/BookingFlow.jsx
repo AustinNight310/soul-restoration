@@ -25,7 +25,10 @@ export default function BookingFlow() {
 
   useEffect(() => {
     supabase.from('services').select('*').in('kind', ['fixed', 'bundle']).order('sort')
-      .then(({ data }) => setServices(data || []));
+      .then(({ data, error }) => {
+        if (error) setError('The services didn’t load. Check your connection and refresh.');
+        setServices(data || []);
+      });
   }, []);
 
   const chosen = useMemo(() => services.filter((s) => picked.includes(s.id)), [services, picked]);

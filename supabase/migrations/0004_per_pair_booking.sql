@@ -72,9 +72,8 @@ $$;
 revoke all on function public.deep_clean_discount(integer) from public;
 grant execute on function public.deep_clean_discount(integer) to anon, authenticated;
 
--- Replace the one-pair booking function with the per-pair version.
-drop function public.create_booking(text, text[], text, text, text, text, text, text, text, text, boolean, text);
-
+-- The per-pair booking function. It sits beside the old one-pair version (different arguments)
+-- until the new site is live; 0005 removes the old one.
 -- p_pairs: [{"model": "...", "size": "...", "color": "...", "notes": "...", "services": ["deep_clean", "icing"]}, ...]
 create or replace function public.create_booking(
   p_email text,

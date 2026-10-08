@@ -85,7 +85,7 @@ function Dashboard({ email, userId }) {
 
   const load = useCallback(async () => {
     const [o, q] = await Promise.all([
-      supabase.from('orders').select('*, order_items(name, price_cents), order_events(status, note, created_at)')
+      supabase.from('orders').select('*, order_items(name, price_cents, needs_quote, pair_id), order_pairs!order_pairs_order_id_fkey(id, position, shoe_model, shoe_size, shoe_color, notes), order_events(status, note, created_at)')
         .not('status', 'in', '(picked_up,cancelled)').order('created_at', { ascending: true }),
       supabase.from('quote_requests').select('*').in('status', ['new', 'priced']).order('created_at', { ascending: true }),
     ]);
@@ -134,7 +134,7 @@ function Dashboard({ email, userId }) {
                           ? <span className={`badge ${o.pickup_status === 'confirmed' ? 'ok' : 'warn'}`}>{o.pickup_status === 'confirmed' ? 'Pickup set' : 'Pickup req.'}</span>
                           : <span className="badge grey">Drop-off</span>}
                       </span>
-                      <strong>{o.order_items.map((i) => i.name).join(' + ')}</strong>
+                      <strong>{itemSummary(o.order_items)}</strong>
                       <span className="muted small">{o.shoe_model || 'Pair'}{o.shoe_size ? ` · ${o.shoe_size}` : ''}</span>
                       {o.status === 'inspected' || o.status === 'in_restoration' ? <span className="small">{stageLabel(o.status)}</span> : null}
                     </button>
@@ -176,9 +176,12 @@ function OrderDetail({ order, userId, onBack, onSaved }) {
       <button className="btn ghost small" style={{ justifySelf: 'start' }} onClick={onBack}>← All orders</button>
       <div>
         <div className="muted small" style={{ fontFamily: 'var(--mono)' }}>#{order.number} · {order.handoff === 'pickup' ? 'PICKUP' : 'DROP-OFF'} · {money(order.total_cents)}</div>
-        <h2 style={{ fontSize: 28 }}>{order.order_items.map((i) => i.name).join(' + ')}</h2>
+        <h2 style={{ fontSize: 28 }}>{itemSummary(order.order_items)}</h2>
         <div className="muted">{[order.shoe_model, order.shoe_size, order.shoe_color].filter(Boolean).join(' · ')}</div>
+        {order.discount_cents > 0 && <div className="small" style={{ color: 'var(--ok)' }}>Includes {money(order.discount_cents)} deep clean bundle savings</div>}
       </div>
+
+      {order.order_pairs.length > 0 && <PairList order={order} />}
 
       <div className="card" style={{ display: 'grid', gap: 12 }}>
         <div style={{ display: 'grid', gridTemplateColumns: `repeat(${STAGES.length}, minmax(0,1fr))`, gap: 4 }}>
@@ -235,6 +238,37 @@ function OrderDetail({ order, userId, onBack, onSaved }) {
         onClick={() => update({ status: 'cancelled' }, 'cancelled', 'Cancelled by staff').then(onBack)}>
         Cancel this order
       </button>
+    </div>
+  );
+}
+
+// "Deep cleaning ×6 + Icing bottoms": one name per service, counted across pairs
+function itemSummary(items) {
+  const counts = new Map();
+  items.forEach((i) => counts.set(i.name, (counts.get(i.name) || 0) + 1));
+  return [...counts].map(([name, n]) => (n > 1 ? `${name} ×${n}` : name)).join(' + ');
+}
+
+function PairList({ order }) {
+  const pairs = [...order.order_pairs].sort((a, b) => a.position - b.position);
+  return (
+    <div className="card" style={{ display: 'grid', gap: 12 }}>
+      <strong>{pairs.length} {pairs.length === 1 ? 'pair' : 'pairs'}</strong>
+      {pairs.map((p) => {
+        const items = order.order_items.filter((i) => i.pair_id === p.id);
+        return (
+          <div key={p.id} style={{ display: 'grid', gap: 4, borderTop: '1px solid var(--line)', paddingTop: 10 }}>
+            <div><span className="muted small" style={{ fontFamily: 'var(--mono)' }}>PAIR {p.position}</span> <strong>{p.shoe_model}</strong>
+              <span className="muted small">{[p.shoe_size, p.shoe_color].filter(Boolean).map((x) => ` · ${x}`).join('')}</span></div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {items.map((i) => (
+                <span key={i.name} className={`badge ${i.needs_quote ? 'warn' : 'grey'}`}>{i.name}{i.needs_quote ? ' · needs quote' : ` · ${money(i.price_cents)}`}</span>
+              ))}
+            </div>
+            {p.notes && <div className="small">“{p.notes}”</div>}
+          </div>
+        );
+      })}
     </div>
   );
 }

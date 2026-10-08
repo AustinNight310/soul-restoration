@@ -44,7 +44,7 @@ export default function Menu() {
         <div className="soft" style={{ display: 'flex', flexWrap: 'wrap', gap: 16, justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ fontFamily: 'var(--display)', fontSize: 21 }}>Deep clean bundles</div>
-            <div className="muted small">Bring the whole rotation.</div>
+            <div className="muted small">Bring the whole rotation. Mix in other services per pair when you book.</div>
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
             {bundles.map((b) => (
@@ -67,7 +67,7 @@ export default function Menu() {
       )}
 
       {services.some((s) => s.price_is_sample) && (
-        <p className="muted small" style={{ margin: 0 }}>Single-service prices are samples for testing and will change.</p>
+        <p className="muted small" style={{ margin: 0 }}>Prices are samples for testing and are subject to change.</p>
       )}
     </div>
   );

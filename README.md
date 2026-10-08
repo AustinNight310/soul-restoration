@@ -8,7 +8,7 @@ This is the **shop-test build**: real screens and real data, but no online payme
 | Page | What it does |
 |---|---|
 | `/` | Home: before/after, live service menu, how it works, About, FAQ |
-| `/book` | 3-step booking: services or bundles → pair details + drop-off or pickup → review, terms, book |
+| `/book` | 3-step booking: each pair and its services → drop-off or pickup → review, terms, book. Over 10 pairs sends a quote request instead |
 | `/track` | Order status by order number + email (no login) |
 | `/quote` | Paint job quote request |
 | `/terms` | Draft service terms (replace before taking real payments) |
@@ -27,7 +27,15 @@ This is the **shop-test build**: real screens and real data, but no online payme
 ## Database
 
 Migrations are in `supabase/migrations/`, applied in order. Menu prices live in the `services` table; change them there, not in code.
-`price_is_sample = true` marks prices Criss hasn't confirmed yet.
+`price_is_sample = true` marks prices Criss hasn't confirmed yet. `short_name` is the label on the booking buttons.
+
+### How an order is priced
+
+An order has up to 10 pairs (`order_pairs`), and each pair has its own services (`order_items.pair_id`).
+`create_booking` adds up every pair's services, then counts the deep cleans across the whole order and
+takes off the bundle savings (`deep_clean_discount`): biggest bundles first, using the bundle rows in `services`.
+Paint and other quoted services are booked at $0 with `needs_quote = true` and priced after review.
+The booking page shows the same math from `lib/pricing.js`, but the database's total is the one that counts.
 
 ### Give someone staff access
 

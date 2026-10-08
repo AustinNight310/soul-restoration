@@ -78,9 +78,16 @@ export default function Tracker() {
           )}
 
           <div className="soft small" style={{ display: 'grid', gap: 4 }}>
-            {order.items.map((it) => (
-              <div key={it.name} style={{ display: 'flex', justifyContent: 'space-between' }}><span>{it.name}</span><span style={{ fontFamily: 'var(--mono)' }}>{money(it.price_cents)}</span></div>
-            ))}
+            {order.pairs?.length > 0 ? order.pairs.map((p) => (
+              <div key={p.position} style={{ display: 'grid', gap: 2, paddingBottom: 6 }}>
+                <strong>{p.position}. {p.model}</strong>
+                {p.items.map((it) => <ItemLine key={it.name} item={it} />)}
+              </div>
+            )) : order.items.map((it) => <ItemLine key={it.name} item={it} />)}
+            {order.discount_cents > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--ok)' }}><span>Deep clean bundle savings</span><span style={{ fontFamily: 'var(--mono)' }}>−{money(order.discount_cents)}</span></div>
+            )}
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--line)', paddingTop: 6, marginTop: 2 }}><strong>Total</strong><span style={{ fontFamily: 'var(--mono)' }}>{money(order.total_cents)}</span></div>
           </div>
 
           {order.handoff === 'pickup' ? (
@@ -92,6 +99,15 @@ export default function Tracker() {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function ItemLine({ item }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+      <span>{item.name}</span>
+      <span style={{ fontFamily: 'var(--mono)' }}>{item.needs_quote ? 'priced after review' : money(item.price_cents)}</span>
     </div>
   );
 }

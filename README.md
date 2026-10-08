@@ -7,7 +7,8 @@ This is the **shop-test build**: real screens and real data, but no online payme
 
 | Page | What it does |
 |---|---|
-| `/` | Home: before/after, live service menu, how it works, About, FAQ |
+| `/` | Home ("Our work"): before/after slider, recent work, reviews, About |
+| `/services` | Live service menu with prices, bundles, paint quotes, how it works, FAQ |
 | `/book` | 3-step booking: each pair and its services → drop-off or pickup → review, terms, book. Over 10 pairs sends a quote request instead |
 | `/track` | Order status by order number + email (no login) |
 | `/quote` | Paint job quote request |
@@ -36,6 +37,12 @@ An order has up to 10 pairs (`order_pairs`), and each pair has its own services 
 takes off the bundle savings (`deep_clean_discount`): biggest bundles first, using the bundle rows in `services`.
 Paint and other quoted services are booked at $0 with `needs_quote = true` and priced after review.
 The booking page shows the same math from `lib/pricing.js`, but the database's total is the one that counts.
+
+### Photos and reviews on the home page
+
+Edit `lib/work.js`. Put before/after photos in `public/work/` and set `before` / `after` on a pair;
+pairs without photos show a drawing. Add real customer reviews (with their OK) to `REVIEWS`;
+the reviews section stays hidden while that list is empty.
 
 ### Give someone staff access
 

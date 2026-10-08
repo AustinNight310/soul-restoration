@@ -1,5 +1,6 @@
 import './globals.css';
 import Link from 'next/link';
+import Nav from '../components/Nav';
 
 export const metadata = {
   title: 'Soul Restoration — Sneaker restoration in the Bronx',
@@ -24,11 +25,7 @@ export default function RootLayout({ children }) {
         <header className="site-head">
           <div className="wrap">
             <Link href="/" className="wordmark">Soul<span>·</span>Restoration</Link>
-            <nav className="nav" aria-label="Main">
-              <Link href="/#services" className="link hide-sm">Services</Link>
-              <Link href="/track" className="link">Track order</Link>
-              <Link href="/book" className="btn primary small">Book</Link>
-            </nav>
+            <Nav />
           </div>
         </header>
         <main>{children}</main>

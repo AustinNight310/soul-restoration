@@ -3,16 +3,16 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { supabase, money } from '../lib/supabase';
-import Shoe from './Shoe';
+import Dunk from './Dunk';
 import styles from '../app/services/services.module.css';
 
 // What each service fixes, in plain words, plus a colorway for its picture.
 const DETAILS = {
-  deep_clean: { fixes: 'Dirt, stains, scuffs, smell', colors: { accent: '#C8102E', sole: '#C8102E' } },
-  icing: { fixes: 'Yellow see-through soles', colors: { accent: '#181D22', sole: '#9FD3F0' } },
-  oxidation: { fixes: 'Yellowed white midsoles', colors: { accent: '#E1E6EA', sole: '#FFFFFF' } },
-  suede: { fixes: 'Flat, stained or faded suede', colors: { upper: '#8A6A4F', accent: '#3E2C1E', sole: '#E8D9B5' } },
-  sole_repair: { fixes: 'Soles peeling or lifting', colors: { accent: '#E05A2B', sole: '#5F6870' } },
+  deep_clean: { fixes: 'Dirt, stains, scuffs, smell', colors: { over: '#c8102e' } },
+  icing: { fixes: 'Yellow see-through soles', colors: { over: '#181d22', sole: '#bfe3f7' } },
+  oxidation: { fixes: 'Yellowed white midsoles', colors: { over: '#2f78c4' } },
+  suede: { fixes: 'Flat, stained or faded suede', colors: { up: '#c9a27e', over: '#8a6a4f', sole: '#e8d9b5' } },
+  sole_repair: { fixes: 'Soles peeling or lifting', colors: { over: '#e05a2b' } },
 };
 
 export default function Menu() {
@@ -42,7 +42,7 @@ export default function Menu() {
       <div className={styles.grid}>
         {fixed.map((s) => (
           <div key={s.id} className={styles.svc}>
-            <div className={styles.thumb}><Shoe clean colors={DETAILS[s.id]?.colors} viewBox="110 60 400 260" /></div>
+            <div className={styles.thumb}><Dunk clean colors={DETAILS[s.id]?.colors} viewBox="-10 -10 324 160" /></div>
             <div className={styles.body}>
               <div className={styles.top}>
                 <h3>{s.name}</h3>
@@ -73,10 +73,10 @@ export default function Menu() {
       )}
 
       {paint && (
-        <Link href="/quote" className="card" style={{ background: 'var(--ink)', color: '#fff', textDecoration: 'none', display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', alignItems: 'center', border: 'none' }}>
+        <Link href="/quote" className="card" style={{ background: 'var(--deep)', color: 'var(--on-deep)', textDecoration: 'none', display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', alignItems: 'center', border: 'none' }}>
           <span>
             <span style={{ display: 'block', fontFamily: 'var(--display)', fontSize: 21 }}>Paint jobs</span>
-            <span style={{ color: '#c9d0d6', fontSize: 14 }}>Recolors, touch-ups and custom designs. From {money(paint.price_cents)}. Send photos, get a price.</span>
+            <span style={{ color: 'var(--deep-soft)', fontSize: 14 }}>Recolors, touch-ups and custom designs. From {money(paint.price_cents)}. Send photos, get a price.</span>
           </span>
           <span style={{ fontFamily: 'var(--mono)', color: 'var(--sky)' }}>Get a quote →</span>
         </Link>

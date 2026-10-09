@@ -7,7 +7,7 @@ This is the **shop-test build**: real screens and real data, but no online payme
 
 | Page | What it does |
 |---|---|
-| `/` | Home ("Our work"): before/after slider, recent work, reviews, About |
+| `/` | Home ("Our work"): a showroom — the pair on display, the collection, At the bench (the journey in six steps), Criss's words, reviews |
 | `/services` | Live service menu with prices, bundles, paint quotes, how it works, FAQ |
 | `/book` | 3-step booking: each pair and its services → drop-off or pickup → review, terms, book. Over 10 pairs sends a quote request instead |
 | `/track` | Order status by order number + email (no login) |
@@ -43,6 +43,18 @@ The booking page shows the same math from `lib/pricing.js`, but the database's t
 Edit `lib/work.js`. Put before/after photos in `public/work/` and set `before` / `after` on a pair;
 pairs without photos show a drawing. Add real customer reviews (with their OK) to `REVIEWS`;
 the reviews section stays hidden while that list is empty.
+
+### At the bench animations
+
+`lib/bench.js` lists the six steps. Each shows a drawn placeholder scene until it has a Lottie file:
+export the animation as Lottie JSON (Creattie or similar), save it in `public/bench/`, and set
+`lottie: '/bench/01-handoff.json'` on that step. It plays when the step comes up and stops on its
+last frame for visitors who turn off motion.
+
+### Day and night
+
+The switch in the header sets `data-theme="night"` on `<html>` and remembers it on the device.
+All colors come from the tokens at the top of `app/globals.css`; add new colors there, not inline.
 
 ### Give someone staff access
 

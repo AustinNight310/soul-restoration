@@ -1,6 +1,7 @@
 import './globals.css';
 import Link from 'next/link';
 import Nav from '../components/Nav';
+import ThemeSwitch from '../components/ThemeSwitch';
 
 export const metadata = {
   title: 'Soul Restoration — Sneaker restoration in the Bronx',
@@ -11,8 +12,9 @@ export const viewport = { width: 'device-width', initialScale: 1 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: "try{if(localStorage.getItem('sr-theme')==='night')document.documentElement.dataset.theme='night'}catch(e){}" }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
@@ -26,6 +28,7 @@ export default function RootLayout({ children }) {
           <div className="wrap">
             <Link href="/" className="wordmark">Soul<span>·</span>Restoration</Link>
             <Nav />
+            <ThemeSwitch />
           </div>
         </header>
         <main>{children}</main>

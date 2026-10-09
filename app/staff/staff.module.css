@@ -5,6 +5,6 @@
 .col { background: var(--surface); border-radius: 14px; padding: 12px; display: grid; gap: 10px; }
 .colTitle { font-family: var(--body); font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; display: flex; justify-content: space-between; padding: 2px 4px; }
 .colTitle span { font-family: var(--mono); color: var(--muted); font-weight: 400; }
-.ticket { display: grid; gap: 4px; text-align: left; font: inherit; color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px; cursor: pointer; min-height: 44px; }
+.ticket { display: grid; gap: 4px; text-align: left; font: inherit; color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; cursor: pointer; min-height: 44px; }
 .ticket:hover { border-color: var(--accent); }
 .ticketTop { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-family: var(--mono); font-size: 12px; color: var(--muted); }

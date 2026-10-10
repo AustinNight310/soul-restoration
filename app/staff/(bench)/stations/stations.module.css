@@ -1,0 +1,17 @@
+/* Station posters print black on white, one per letter page, whatever the screen theme is. */
+.posters { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.poster { background: #fff; color: #181d22; border: 1px dashed #98a3ac; border-radius: 12px; padding: 20px; display: grid; justify-items: center; gap: 10px; text-align: center; }
+.posterBrand { font-family: var(--display); font-size: 16px; }
+.posterName { font-family: var(--display); font-size: 30px; line-height: 1.1; }
+.posterHow { font-size: 13px; max-width: 34ch; }
+.posterNum { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #5f6870; }
+@media print {
+  .posters { display: block; }
+  .poster { border: 0; border-radius: 0; width: 7.5in; height: 10in; margin: 0 auto; padding: 0.4in 0 0; gap: 0.25in; page-break-after: always; break-after: page; }
+  .poster > [role="img"] { width: 6in !important; height: 6in !important; }
+  .posterBrand { font-size: 22pt; }
+  .posterName { font-size: 54pt; }
+  .posterHow { font-size: 16pt; max-width: none; }
+  .posterNum { font-size: 12pt; }
+  .skip { display: none !important; }
+}

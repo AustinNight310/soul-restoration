@@ -12,10 +12,13 @@ import s from './sign-in.module.css';
 export default function StaffSignIn() {
   const { ready, user, isStaff, recovering, doneRecovering, signOut } = useAuth();
   const router = useRouter();
+  // back to the page a scanned QR opened, but only ever a staff page on this site
+  const want = useSearchParams().get('next') || '';
+  const next = /^\/staff\/[a-z]/.test(want) && !want.startsWith('/staff/sign-in') ? want : '/staff';
 
   useEffect(() => {
-    if (ready && user && isStaff && !recovering) router.replace('/staff');
-  }, [ready, user, isStaff, recovering, router]);
+    if (ready && user && isStaff && !recovering) router.replace(next);
+  }, [ready, user, isStaff, recovering, router, next]);
 
   let body;
   if (recovering && user) body = <NewPassword onDone={() => { doneRecovering(); router.replace('/staff'); }} />;

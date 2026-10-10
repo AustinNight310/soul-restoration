@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase, money, STAGES, stageLabel, serviceSummary } from '../../../../lib/supabase';
 import { useStaff, ORDER_SELECT, firstName, pickupLabel, phoneHref } from '../staff-shared';
+import { STATE_LABEL, since } from '../../../../lib/stations';
 import ChangeTime from '../calendar/ChangeTime';
 import s from '../../staff.module.css';
 
@@ -108,7 +109,7 @@ function Stages({ order, update, busy }) {
         {next && <button className="btn primary" disabled={busy} onClick={() => update({ status: next.id }, next.id, null)}>Move to: {next.label} →</button>}
         {idx > 0 && <button className="btn ghost" disabled={busy} onClick={() => update({ status: STAGES[idx - 1].id }, STAGES[idx - 1].id, 'Moved back')}>Undo last move</button>}
       </div>
-      <p className="muted small" style={{ margin: 0 }}>The customer sees each stage on their tracking page and in their account.</p>
+      <p className="muted small" style={{ margin: 0 }}>Scanning pairs at the stations moves this on its own once every pair is through. The customer sees each stage on their tracking page and in their account.</p>
     </div>
   );
 }
@@ -207,6 +208,7 @@ function Photos({ order, reload }) {
 }
 
 function PairList({ order }) {
+  const { station, person } = useStaff();
   const pairs = [...order.order_pairs].sort((a, b) => a.position - b.position);
   return (
     <div className="card" style={{ display: 'grid', gap: 12 }}>
@@ -223,6 +225,15 @@ function PairList({ order }) {
               ))}
             </div>
             {p.notes && <div className="small">“{p.notes}”</div>}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+              <span className="small">
+                {p.station_id
+                  ? <><strong>{station(p.station_id)?.name}</strong> · {STATE_LABEL[p.station_state]} {since(p.station_at)} ago · {firstName(person(p.station_by)) || 'staff'}{p.spot ? ` · spot ${p.spot}` : ''}</>
+                  : <span className="muted">Not scanned at a station yet</span>}
+              </span>
+              <Link href={`/staff/pair?id=${p.id}`} className="btn ghost small">Open pair</Link>
+            </div>
+            {p.station_state === 'held' && <div className="small" style={{ color: 'var(--danger)' }}>On hold: {p.hold_note}</div>}
           </div>
         );
       })}

@@ -408,7 +408,7 @@ function Day({ events, all, closed, anchor, setAnchor, person, onChange, onFinis
 function Stop({ e, person, onChange, onFinish }) {
   const o = e.order;
   const tel = phoneHref('tel', e.phone);
-  const sms = phoneHref('sms', e.phone, `Hi, it's Soul Restoration. On my way with order #${o.number}.`);
+  const sms = phoneHref('sms', e.phone, `Hi, it's Soul Sneakers. On my way with order #${o.number}.`);
   const map = e.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(e.address)}` : null;
   return (
     <div className={s.aCard} data-kind={e.kind}>

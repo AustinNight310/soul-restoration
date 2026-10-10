@@ -68,7 +68,7 @@ export default function Pickups() {
 function Stop({ o, today, busy, onCollected }) {
   const n = pairCount(o);
   const tel = phoneHref('tel', o.pickup_phone);
-  const sms = phoneHref('sms', o.pickup_phone, `Hi, it's Soul Restoration. On my way for your pickup (order #${o.number}).`);
+  const sms = phoneHref('sms', o.pickup_phone, `Hi, it's Soul Sneakers. On my way for your pickup (order #${o.number}).`);
   const map = o.pickup_address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o.pickup_address)}` : null;
   const timed = o.pickup_status === 'confirmed' && o.pickup_at;
   return (

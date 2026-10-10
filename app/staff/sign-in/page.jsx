@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import StaffSignIn from './StaffSignIn';
 
-export const metadata = { title: 'Staff sign-in — Soul Restoration' };
+export const metadata = { title: 'Staff sign-in — Soul Sneakers' };
 
 export default function StaffSignInPage() {
   return (

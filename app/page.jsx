@@ -61,7 +61,7 @@ export default function Home() {
           <div className="eyebrow">The maker</div>
           <div className={styles.mark} aria-hidden="true">“</div>
           <blockquote>I didn't always have the money for brand new sneakers. So I learned to buy used pairs and make them look <em>brand new</em>.</blockquote>
-          <div className={styles.sig}><strong>Criss</strong><span>Founder, Soul Restoration</span></div>
+          <div className={styles.sig}><strong>Criss</strong><span>Founder, Soul Sneakers</span></div>
           <p className={styles.story}>A sneakerhead from the first pair of Jordans. During the pandemic in 2020 that turned into a side hustle cleaning sneakers, and it's grown from there.</p>
         </div>
       </section>

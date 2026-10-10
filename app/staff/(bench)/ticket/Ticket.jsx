@@ -49,7 +49,7 @@ export default function Ticket() {
             <article key={p.position} className={s.ticket}>
               <header className={s.head}>
                 <div>
-                  <div className={s.brand}>Soul·Restoration</div>
+                  <div className={s.brand}>Soul·Sneakers</div>
                   <div className={s.meta}>{order.handoff === 'pickup' ? 'PICKUP' : 'DROP-OFF'} · IN {day(order.created_at)}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>

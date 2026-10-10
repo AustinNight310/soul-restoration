@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import Account from './Account';
 
-export const metadata = { title: 'Your account — Soul Restoration' };
+export const metadata = { title: 'Your account — Soul Sneakers' };
 
 export default function AccountPage() {
   return (

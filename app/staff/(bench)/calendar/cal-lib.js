@@ -72,6 +72,6 @@ export async function saveTime(event, at, userId) {
 export function textBody(event, at) {
   const when = pickupLabel(at.toISOString());
   return event.kind === 'pickup'
-    ? `Hi, it's Soul Restoration. Your pickup for order #${event.order.number} is ${when}. Reply if that doesn't work.`
-    : `Hi, it's Soul Restoration. We'll deliver order #${event.order.number} ${when}. Reply if that doesn't work.`;
+    ? `Hi, it's Soul Sneakers. Your pickup for order #${event.order.number} is ${when}. Reply if that doesn't work.`
+    : `Hi, it's Soul Sneakers. We'll deliver order #${event.order.number} ${when}. Reply if that doesn't work.`;
 }

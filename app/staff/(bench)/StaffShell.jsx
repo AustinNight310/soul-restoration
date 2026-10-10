@@ -12,6 +12,7 @@ import s from '../staff.module.css';
 
 const MENU = [
   { href: '/staff', label: 'Board' },
+  { href: '/staff/calendar', label: 'Calendar' },
   { href: '/staff/search', label: 'Search & history' },
   { href: '/staff/pickups', label: 'Today’s pickups', count: 'pickups' },
   { href: '/staff/quotes', label: 'Quotes', count: 'quotes' },

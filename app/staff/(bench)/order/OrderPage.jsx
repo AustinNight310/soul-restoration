@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase, money, STAGES, stageLabel, serviceSummary } from '../../../../lib/supabase';
 import { useStaff, ORDER_SELECT, firstName, pickupLabel, phoneHref } from '../staff-shared';
+import ChangeTime from '../calendar/ChangeTime';
 import s from '../../staff.module.css';
 
 export default function OrderPage() {
@@ -62,10 +63,12 @@ export default function OrderPage() {
           <Photos {...ctx} />
           {order.order_pairs.length > 0 && <PairList order={order} />}
           {order.handoff === 'pickup' && <Pickup {...ctx} />}
+          <ReturnTrip {...ctx} />
           <Notes {...ctx} />
         </div>
         <aside className={s.aside}>
           <Assign {...ctx} />
+          <DueDate {...ctx} />
           <Customer order={order} />
           <Activity order={order} />
           {order.status !== 'cancelled' && !isAdmin && (
@@ -334,6 +337,104 @@ function Activity({ order }) {
           <span>Order placed</span>
         </div>
       </div>
+    </div>
+  );
+}
+
+// When the pairs should be ready. Set automatically when the order is received; change it here.
+function DueDate({ order, update, busy }) {
+  const toInput = (iso) => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+  const [day, setDay] = useState(toInput(order.due_at));
+  const late = order.due_at && new Date(order.due_at) < new Date() && !['ready_for_pickup', 'picked_up', 'cancelled'].includes(order.status);
+  function save() {
+    const [y, m, d] = day.split('-').map(Number);
+    update({ due_at: day ? new Date(y, m - 1, d, 18).toISOString() : null });
+  }
+  return (
+    <div className="card" style={{ display: 'grid', gap: 8 }}>
+      <label className="field">Ready by
+        <input className="input" type="date" value={day} onChange={(e) => setDay(e.target.value)} />
+      </label>
+      {late && <span className="small" style={{ color: 'var(--danger)', fontWeight: 600 }}>Past due</span>}
+      {!order.due_at && <span className="muted small">Set automatically when the pairs are received.</span>}
+      <button className="btn ghost small" disabled={busy || day === toInput(order.due_at)} onClick={save}>Save date</button>
+    </div>
+  );
+}
+
+// How the finished pairs get back to the customer: they pick up at the shop, or we deliver for a fee.
+// Customers choose this in their account; staff can set or change it here (for example for guests).
+function ReturnTrip({ order, update, busy, reload }) {
+  const [fee, setFee] = useState(null);
+  const [closed, setClosed] = useState([0]);
+  const [form, setForm] = useState({
+    address: order.return_address || order.pickup_address || '',
+    phone: order.return_phone || order.pickup_phone || '',
+    evening: order.return_evening || '',
+  });
+  const [changing, setChanging] = useState(false);
+  useEffect(() => {
+    supabase.rpc('get_calendar_settings').then(({ data }) => {
+      if (data) { setFee(data.delivery_fee_cents); setClosed(data.closed_days || []); }
+    });
+  }, []);
+  if (['picked_up', 'cancelled'].includes(order.status)) {
+    return order.return_status === 'delivered' ? <div className="card"><strong>Delivered</strong> <span className="muted small">to {order.return_address}</span></div> : null;
+  }
+  const method = order.return_method;
+  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+  const feeText = (c) => (c == null ? 'not set yet' : money(c));
+  function choose(m) {
+    update(m === 'delivery'
+      ? { return_method: 'delivery', return_status: order.return_status || 'requested', return_fee_cents: order.return_fee_cents ?? fee, return_address: form.address || null, return_phone: form.phone || null }
+      : { return_method: m, return_status: null, return_at: null, return_time: null, return_fee_cents: null });
+  }
+  const event = { id: `return-${order.id}`, kind: 'return', order, at: order.return_at && order.return_status === 'confirmed' ? new Date(order.return_at) : null, phone: order.return_phone, address: order.return_address, evening: order.return_evening };
+  return (
+    <div className="card" style={{ display: 'grid', gap: 10 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+        <strong>Getting the pairs back</strong>
+        <span className={`badge ${method === 'delivery' ? '' : method === 'shop' ? 'grey' : 'warn'}`}>
+          {method === 'delivery' ? `Delivery · ${order.return_status === 'confirmed' ? 'time set' : 'needs a time'}` : method === 'shop' ? 'Picks up at the shop' : 'Not chosen yet'}
+        </span>
+      </div>
+      <div className="pills" role="radiogroup" aria-label="How the pairs get back">
+        <button className="pill" role="radio" aria-checked={method === 'shop'} aria-pressed={method === 'shop'} disabled={busy} onClick={() => choose('shop')}>Pick up at the shop</button>
+        <button className="pill" role="radio" aria-checked={method === 'delivery'} aria-pressed={method === 'delivery'} disabled={busy} onClick={() => choose('delivery')}>Deliver · {feeText(order.return_fee_cents ?? fee)}</button>
+      </div>
+      {method === 'delivery' && (
+        <>
+          <label className="field">Delivery address<input className="input" value={form.address} onChange={set('address')} /></label>
+          <div className="row2">
+            <label className="field">Mobile<input className="input" type="tel" value={form.phone} onChange={set('phone')} /></label>
+            <label className="field">Best evening<input className="input" value={form.evening} onChange={set('evening')} placeholder="e.g. Tue" /></label>
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <button className="btn ghost small" disabled={busy} onClick={() => update({ return_address: form.address || null, return_phone: form.phone || null, return_evening: form.evening || null })}>Save details</button>
+            <span className="small">Fee: <strong>{feeText(order.return_fee_cents)}</strong></span>
+            {fee != null && order.return_fee_cents !== fee && <button className="linkbtn" style={{ color: 'var(--accent)' }} onClick={() => update({ return_fee_cents: fee })}>Use the current fee ({money(fee)})</button>}
+          </div>
+          {order.return_time && <div className="small">Set for <strong>{order.return_time}</strong></div>}
+          {changing
+            ? <ChangeTime event={event} closedDays={closed} onDone={() => { setChanging(false); reload(); }} onCancel={() => setChanging(false)} />
+            : (
+              <div className="pills">
+                <button className="btn primary small" disabled={busy || !order.return_address} onClick={() => setChanging(true)}>{event.at ? 'Change time' : 'Set a time'}</button>
+                {event.at && (
+                  <button className="btn dark small" disabled={busy}
+                    onClick={() => update({ return_status: 'delivered', status: 'picked_up' }, 'picked_up', 'Delivered to the customer')}>Mark delivered</button>
+                )}
+              </div>
+            )}
+          {fee == null && order.return_fee_cents == null && <span className="muted small">The delivery fee isn’t set yet. An admin can set it in Settings.</span>}
+        </>
+      )}
+      {method === 'shop' && <span className="muted small">They’ll collect from the shop. Move the order to “Picked up” when they do.</span>}
+      {!method && <span className="muted small">The customer can choose in their account, or set it here for them.</span>}
     </div>
   );
 }

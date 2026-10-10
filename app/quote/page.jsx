@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../lib/auth';
 
 const KINDS = ['Recolor', 'Touch-up', 'Custom design', 'Something else'];
 
@@ -12,13 +13,14 @@ export default function QuotePage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [sent, setSent] = useState(null);
+  const { user } = useAuth();
 
   async function submit(e) {
     e.preventDefault();
     setError('');
     setBusy(true);
     const { data, error } = await supabase.rpc('create_quote_request', {
-      p_email: form.email, p_kind: kind, p_description: form.description,
+      p_email: user ? user.email : form.email, p_kind: kind, p_description: form.description,
       p_shoe_model: form.model, p_shoe_size: form.size, p_inspiration_url: form.link,
     });
     setBusy(false);
@@ -32,6 +34,7 @@ export default function QuotePage() {
         <span className="badge" style={{ justifySelf: 'start' }}>Request #{sent.number}</span>
         <h1 style={{ fontSize: 38 }}>Request sent.</h1>
         <p style={{ margin: 0 }}>Text a few photos of the pair (side, top and sole) to <strong>347-238-9320</strong> with your request number. Criss will reply with a price. Nothing is charged until you accept.</p>
+        {user && <Link href="/account?tab=quotes" className="btn primary block">See it in your account</Link>}
         <Link href="/" className="btn ghost block">Back to home</Link>
       </div>
     );
@@ -60,9 +63,13 @@ export default function QuotePage() {
       <label className="field">Inspiration link <span className="muted" style={{ fontWeight: 400 }}>(optional)</span>
         <input className="input" type="url" value={form.link} onChange={set('link')} placeholder="Instagram post, Pinterest…" />
       </label>
-      <label className="field">Email
-        <input className="input" type="email" autoComplete="email" value={form.email} onChange={set('email')} required />
-      </label>
+      {user ? (
+        <div className="soft small">Sending as <strong>{user.email}</strong>. The price shows up in your account.</div>
+      ) : (
+        <label className="field">Email
+          <input className="input" type="email" autoComplete="email" value={form.email} onChange={set('email')} required />
+        </label>
+      )}
       {error && <p className="error" role="alert">{error}</p>}
       <button className="btn primary block" disabled={busy}>{busy ? 'Sending…' : 'Send quote request'}</button>
     </form>

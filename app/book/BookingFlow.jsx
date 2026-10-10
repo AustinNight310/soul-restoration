@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { supabase, money } from '../../lib/supabase';
+import { useAuth } from '../../lib/auth';
 import { DEEP_CLEAN, MAX_PAIRS, label, priceOrder } from '../../lib/pricing';
 
 const EVENINGS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -27,6 +28,13 @@ export default function BookingFlow() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [done, setDone] = useState(null);
+  const { user, profile } = useAuth();
+
+  // Signed in: the order goes on your account, under your email, with your mobile ready for pickups.
+  useEffect(() => { if (user) setEmail(user.email); }, [user]);
+  useEffect(() => {
+    if (profile?.phone) setPickup((p) => (p.phone ? p : { ...p, phone: profile.phone }));
+  }, [profile?.phone]);
 
   useEffect(() => {
     supabase.from('services').select('*').in('kind', ['fixed', 'bundle', 'quote']).order('sort')
@@ -133,8 +141,8 @@ export default function BookingFlow() {
     window.scrollTo({ top: 0 });
   }
 
-  if (done?.kind === 'quote') return <QuoteSent result={done} />;
-  if (done) return <Confirmed result={done} email={email} />;
+  if (done?.kind === 'quote') return <QuoteSent result={done} signedIn={!!user} />;
+  if (done) return <Confirmed result={done} email={email} signedIn={!!user} />;
 
   return (
     <div style={{ paddingBottom: 40 }}>
@@ -268,10 +276,17 @@ export default function BookingFlow() {
               <div className="muted small">{handoff === 'pickup' ? `Pickup requested${pickup.evening ? ` · ${pickup.evening} evening` : ''}` : 'Drop-off in the Bronx'}</div>
             </div>
 
-            <label className="field">Email
-              <input className="input" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
-              <span className="muted" style={{ fontWeight: 400 }}>{hefty ? 'Your quote comes here.' : 'Your order number and tracking link go here.'}</span>
-            </label>
+            {user ? (
+              <div className="soft small" style={{ display: 'grid', gap: 2 }}>
+                <span>Booking as <strong>{user.email}</strong></span>
+                <span className="muted">{hefty ? 'The quote shows up in your account.' : 'This order goes in your account.'}</span>
+              </div>
+            ) : (
+              <label className="field">Email
+                <input className="input" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+                <span className="muted" style={{ fontWeight: 400 }}>{hefty ? 'Your quote comes here.' : 'Your order number and tracking link go here.'}</span>
+              </label>
+            )}
 
             {!hefty && (
               <>
@@ -383,18 +398,19 @@ function HeftyNote({ count }) {
   );
 }
 
-function QuoteSent({ result }) {
+function QuoteSent({ result, signedIn }) {
   return (
     <div className="narrow" style={{ paddingTop: 40, paddingBottom: 40, display: 'grid', gap: 16 }}>
       <span className="badge" style={{ justifySelf: 'start' }}>Request #{result.number}</span>
       <h1 style={{ fontSize: 38 }}>Quote request sent.</h1>
       <p style={{ margin: 0 }}>Criss will look over all {result.pairs} pairs and reply with a price. You can text photos to <strong>347-238-9320</strong> with your request number to speed it up. Nothing is charged until you accept.</p>
+      {signedIn && <Link href="/account?tab=quotes" className="btn primary block">See it in your account</Link>}
       <Link href="/" className="btn ghost block">Back to home</Link>
     </div>
   );
 }
 
-function Confirmed({ result, email }) {
+function Confirmed({ result, email, signedIn }) {
   const pickup = result.handoff === 'pickup';
   return (
     <div className="narrow" style={{ paddingTop: 40, paddingBottom: 40, display: 'grid', gap: 20 }}>
@@ -422,7 +438,14 @@ function Confirmed({ result, email }) {
           <p className="muted small" style={{ margin: 0 }}>Bring your order number. We photograph every pair at check-in so its condition is on record. This address is only shared with booked customers.</p>
         </div>
       )}
-      <Link href={`/track?n=${result.number}`} className="btn primary block">Track this order</Link>
+      {signedIn ? (
+        <Link href={`/account?order=${result.number}`} className="btn primary block">See it in your account</Link>
+      ) : (
+        <>
+          <Link href={`/track?n=${result.number}`} className="btn primary block">Track this order</Link>
+          <p className="muted small" style={{ margin: 0 }}>Want every order in one place? <Link href="/sign-in">Sign in</Link> with {email} and this one shows up in your account.</p>
+        </>
+      )}
       <Link href="/" className="btn ghost block">Back to home</Link>
     </div>
   );

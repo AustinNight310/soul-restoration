@@ -14,7 +14,7 @@ This is the **shop-test build**: real screens and real data, but no online payme
 | `/quote` | Paint job quote request |
 | `/terms` | Draft service terms (replace before taking real payments) |
 | `/sign-in` | Customer sign-in: we email a link, no password |
-| `/account` | The signed-in customer's account (orders and quotes come in the next phase) |
+| `/account` | The signed-in customer's orders (open and past, each with its full status), quotes to accept or decline, and profile |
 | `/staff/sign-in` | Staff sign-in with a password, forgot password, and "set up your login" for new staff |
 | `/staff` | Staff dashboard: order board, move stages, confirm pickups, notes, price quotes |
 
@@ -67,6 +67,11 @@ who is signed in and as what, but the database rules are what actually allow or 
 People can edit their own name and phone, never their role.
 
 Customers sign in at `/sign-in` with an emailed link. Staff sign in at `/staff/sign-in` with a password.
+
+Booking and quote requests still work without an account. Signed in, they're saved under the account's
+email automatically. When a customer opens their account, `claim_my_orders()` attaches any earlier guest
+orders and quotes booked with the same (confirmed) email. A priced quote can be accepted or declined from
+the account (`respond_to_quote()`); accepted quotes show up on the staff Quotes tab.
 
 ### Give someone staff access
 

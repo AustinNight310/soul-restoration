@@ -142,7 +142,8 @@ textarea.input { min-height: 96px; resize: vertical; }
 .stack { display: grid; gap: 10px; }
 
 .pill { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--stroke-strong); background: var(--card); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--ink); }
-.pill[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+.pill[aria-pressed="true"], .pill[aria-current="page"] { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+a.pill { text-decoration: none; }
 .pills { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .card { border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; background: var(--card); }

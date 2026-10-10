@@ -223,3 +223,10 @@ a.pill { text-decoration: none; }
 /* sign-in pages */
 .notice { background: var(--ok-soft); color: var(--ok); border-radius: 12px; padding: 12px 14px; font-size: 14px; }
 @media (prefers-reduced-motion: reduce) { .mode-thumb, body { transition: none; } }
+
+/* printing (bench tickets): only the page content */
+@media print {
+  .testbar, .site-head, .site-foot, [data-print-hide] { display: none !important; }
+  body { background: #fff; }
+  .wrap { max-width: none; padding: 0; }
+}

@@ -38,7 +38,7 @@ export default function Home() {
           </div>
           <RecentWork items={WORK.slice(1, 4)} />
           <div className={styles.ig}>
-            <a className="btn ghost" href="https://instagram.com/_soulsneakers_" target="_blank" rel="noreferrer">
+            <a className="btn ghost" href="https://www.instagram.com/_soulsneakers__/" target="_blank" rel="noreferrer">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" /></svg>
               See more on Instagram
             </a>

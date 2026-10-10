@@ -171,7 +171,36 @@ function OrderDetail({ order }) {
       <Link href="/account" className="btn ghost small" style={{ justifySelf: 'start' }}>← My orders</Link>
       {error && <p className="error" role="alert">{error}</p>}
       {status ? <OrderStatus order={status} /> : !error && <p className="muted">Loading…</p>}
+      <BenchPhotos orderId={order.id} />
       <p className="muted small" style={{ margin: 0 }}>Questions about this order? Text <strong>347-238-9320</strong> with #{order.number}.</p>
+    </div>
+  );
+}
+
+// The photos staff chose to share: check-in shots (the pair's condition on arrival) and bench progress.
+function BenchPhotos({ orderId }) {
+  const [photos, setPhotos] = useState([]);
+  useEffect(() => {
+    supabase.from('order_photos').select('id, path, kind, created_at').eq('order_id', orderId).eq('visible_to_customer', true)
+      .order('created_at').then(async ({ data }) => {
+        if (!data?.length) return;
+        const { data: signed } = await supabase.storage.from('photos').createSignedUrls(data.map((p) => p.path), 3600);
+        const url = Object.fromEntries((signed || []).filter((x) => x.signedUrl).map((x) => [x.path, x.signedUrl]));
+        setPhotos(data.filter((p) => url[p.path]).map((p) => ({ ...p, url: url[p.path] })));
+      });
+  }, [orderId]);
+  if (!photos.length) return null;
+  return (
+    <div style={{ display: 'grid', gap: 10 }}>
+      <h2 className={s.h2}>Photos from the bench</h2>
+      <div className={s.photos}>
+        {photos.map((p) => (
+          <a key={p.id} href={p.url} target="_blank" rel="noreferrer" className={s.photo}>
+            <img src={p.url} alt={p.kind === 'intake' ? 'Check-in photo' : 'Bench photo'} />
+            <span>{p.kind === 'intake' ? 'Check-in' : 'On the bench'}</span>
+          </a>
+        ))}
+      </div>
     </div>
   );
 }

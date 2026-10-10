@@ -1,0 +1,18 @@
+/* Tickets print black on white whatever the screen theme is. */
+.controls { display: flex; flex-wrap: wrap; gap: 8px; }
+.sheet { display: flex; flex-wrap: wrap; gap: 16px; }
+.ticket { width: 6in; max-width: 100%; height: 4in; box-sizing: border-box; padding: 0.25in 0.3in; display: flex; flex-direction: column; gap: 8px; background: #fff; color: #181d22; border: 1px dashed #98a3ac; font-family: var(--body); overflow: hidden; }
+.head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; border-bottom: 2px solid #181d22; padding-bottom: 8px; }
+.brand { font-family: var(--display); font-size: 18px; }
+.meta { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; }
+.number { font-family: var(--mono); font-size: 40px; font-weight: 700; line-height: 1; }
+.shoe { font-size: 22px; font-weight: 700; line-height: 1.2; }
+.list { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 6px; font-size: 16px; }
+.list li { display: flex; align-items: center; gap: 10px; }
+.box { width: 16px; height: 16px; border: 2px solid #181d22; border-radius: 3px; flex: none; }
+.note { font-size: 13px; background: #f5f7f8; border-radius: 6px; padding: 6px 8px; }
+@media print {
+  .controls { display: none; }
+  .sheet { display: block; }
+  .ticket { border: 0; page-break-after: always; break-after: page; max-width: none; }
+}

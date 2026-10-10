@@ -1,4 +1,4 @@
-/* At the bench: layout, step list, tracking strip and the placeholder scene animations. */
+/* At the bench: layout, progress bar and the placeholder scene animations. */
 /* at the bench: the whole journey, hand-off to back home, in flat line illustrations */
 .bench { background: var(--surface); transition: background-color .3s ease; }
 .process { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 40px; align-items: start; }
@@ -6,8 +6,6 @@
 .bench-stage { position: relative; aspect-ratio: 32 / 21; border-radius: 10px; overflow: hidden; background: #f7f9fc; border: 1px solid var(--line); }
 .scene { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .5s ease; }
 .scene.on { opacity: 1; }
-.step-tag { position: absolute; left: 14px; top: 14px; display: flex; align-items: center; gap: 10px; background: #fff; color: #181d22; border: 1.5px solid #181d22; border-radius: 999px; padding: 5px 14px 5px 6px; font-size: 13px; font-weight: 600; }
-.step-tag b { font-family: var(--mono); font-weight: 400; font-size: 11px; color: #fff; background: #2f78c4; border-radius: 999px; padding: 2px 8px; }
 
 /* illustration palette: fixed, like a printed plate, so it reads the same day or night */
 .ill { --ln: #181d22; --blue: #2f78c4; --blue2: #9cc3ec; --pale: #e3edf9; --skin: #ffffff; }
@@ -76,32 +74,20 @@
 .msg { opacity: 0; }
 .pop { opacity: 0; }
 
-/* the tracking page strip under the illustration */
-.trackline { display: grid; gap: 8px; margin-top: 14px; }
-.trackline .label { color: var(--muted); }
-.trackline ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
-.trackline li { font-size: 12px; text-align: center; padding: 7px 4px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); transition: all .3s ease; }
-.trackline li.past { color: var(--ink); }
-.trackline li.now { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
-@media (max-width: 600px) { .trackline ol { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-
-/* the side: step list, the open step, play controls */
-.bench-side { display: grid; gap: 20px; align-content: start; }
-.tabs { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
-@media (max-width: 900px) { .tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; } }
-.tab { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; align-items: center; text-align: left; background: none; border: 0; border-radius: 10px; padding: 10px 14px; font: inherit; color: var(--muted); cursor: pointer; }
-.tab b { font-family: var(--display); font-weight: 300; font-size: 24px; line-height: 1; font-variant-numeric: lining-nums tabular-nums; }
-.tab span { font-weight: 600; }
-.tab .bar { grid-column: 1 / -1; height: 2px; background: var(--line); border-radius: 2px; overflow: hidden; }
-.tab .bar i { display: block; height: 100%; width: 0; background: var(--accent); }
-.tab[aria-selected="true"] { background: var(--bg); color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
-.tab[aria-selected="true"] b { color: var(--accent); }
-@media (max-width: 900px) { .tab { grid-template-columns: minmax(0, 1fr); padding: 10px 6px; text-align: center; } .tab span { font-size: 12px; } .tab b { font-size: 20px; } }
-.panel { display: grid; gap: 10px; min-height: 190px; }
+/* the side: one segmented progress bar, the open step, controls */
+.bench-side { display: grid; gap: 18px; align-content: center; align-self: stretch; }
+.steps { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+.steps button { position: relative; height: 24px; padding: 0; background: none; border: 0; cursor: pointer; }
+.steps button::before, .steps button i { content: ''; position: absolute; left: 0; top: 10px; height: 4px; border-radius: 2px; }
+.steps button::before { right: 0; background: var(--line); }
+.steps button i { width: 0; background: var(--accent); }
+.panel { display: grid; gap: 8px; min-height: 150px; align-content: start; }
+.panel .label { color: var(--accent); }
 .panel h3 { font-size: 30px; }
 .panel p { color: var(--ink-soft); }
-.panel .gets { display: flex; gap: 10px; align-items: baseline; border-top: 1px solid var(--line); padding-top: 12px; margin-top: 4px; }
-.panel .gets .label { color: var(--accent); white-space: nowrap; }
+.controls { display: flex; gap: 8px; align-items: center; }
+.round { width: 40px; height: 40px; border-radius: 999px; border: 1px solid var(--line); background: none; color: var(--ink); font: inherit; font-size: 18px; cursor: pointer; }
+@media (max-width: 900px) { .panel { min-height: 0; } .panel h3 { font-size: 26px; } }
 .play { justify-self: start; display: inline-flex; align-items: center; gap: 8px; background: none; border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; font: inherit; font-size: 14px; color: var(--ink); cursor: pointer; }
 @media (prefers-reduced-motion: reduce) { .scene * { animation-duration: 1ms !important; animation-iteration-count: 1 !important; animation-delay: 0s !important; } }
 

@@ -1,8 +1,8 @@
 'use client';
 // "At the bench": one pair's trip in six steps. Plays once the section is on screen,
-// pauses on request, and any step can be opened by tapping it.
+// pauses on request; the arrows or the progress bar jump to any step.
 import { useEffect, useRef, useState } from 'react';
-import { STEPS, TRACK, DWELL_MS } from '../../lib/bench';
+import { STEPS, DWELL_MS } from '../../lib/bench';
 import { SCENES, SNEAKER_DEFS } from './scenes';
 import LottieScene from './LottieScene';
 import './bench.css';
@@ -52,44 +52,33 @@ export default function Bench() {
   }, [playing, cur]);
 
   const step = STEPS[cur];
+  const go = (d) => setCur((c) => (c + d + STEPS.length) % STEPS.length);
   return (
     <div className="process" ref={proc}>
-      <div>
-        <div className={`bench-stage${still ? ' still' : ''}`} ref={stage}>
-          <div dangerouslySetInnerHTML={{ __html: SNEAKER_DEFS }} />
-          {STEPS.map((st, i) => (st.lottie
-            ? <LottieScene key={i} src={st.lottie} active={i === cur} still={still} />
-            : <div key={i} className="scene drawn" data-i={i} dangerouslySetInnerHTML={{ __html: SCENES[i].replace('class="scene ill"', 'class="ill" style="width:100%;height:100%;display:block"') }} />))}
-          <span className="step-tag"><b>{step.n}</b><span>{step.title}</span></span>
-        </div>
-        <div className="trackline">
-          <span className="label">What your tracking page shows</span>
-          <ol>
-            {TRACK.map((t, j) => <li key={t} className={j === step.track ? 'now' : j < step.track ? 'past' : ''}>{t}</li>)}
-          </ol>
-        </div>
+      <div className={`bench-stage${still ? ' still' : ''}`} ref={stage}>
+        <div dangerouslySetInnerHTML={{ __html: SNEAKER_DEFS }} />
+        {STEPS.map((st, i) => (st.lottie
+          ? <LottieScene key={i} src={st.lottie} active={i === cur} still={still} />
+          : <div key={i} className="scene drawn" data-i={i} dangerouslySetInnerHTML={{ __html: SCENES[i].replace('class="scene ill"', 'class="ill" style="width:100%;height:100%;display:block"') }} />))}
       </div>
       <div className="bench-side">
-        <ol className="tabs" role="tablist" aria-label="Steps">
+        <div className="steps" role="tablist" aria-label="Steps">
           {STEPS.map((st, i) => (
-            <li key={st.n}>
-              <button type="button" className="tab" role="tab" aria-selected={i === cur} onClick={() => setCur(i)}>
-                <b>{st.n}</b><span>{st.title}</span><span className="bar"><i ref={(el) => { bars.current[i] = el; }} /></span>
-              </button>
-            </li>
+            <button key={st.n} type="button" role="tab" aria-selected={i === cur} aria-label={`Step ${i + 1}: ${st.title}`} onClick={() => setCur(i)}>
+              <i ref={(el) => { bars.current[i] = el; }} />
+            </button>
           ))}
-        </ol>
+        </div>
         <div className="panel" role="tabpanel" aria-live="polite">
-          <div className="label" style={{ color: 'var(--muted)' }}>Step {step.n} of {String(STEPS.length).padStart(2, '0')}</div>
+          <div className="label">Step {cur + 1} of {STEPS.length}</div>
           <h3>{step.title}</h3>
           <p>{step.body}</p>
-          <div className="gets"><span className="label">You get</span><span>{step.gets}</span></div>
         </div>
-        {!still && (
-          <button type="button" className="play" aria-pressed={!playing} onClick={() => setPlaying((p) => !p)}>
-            {playing ? 'Pause' : 'Play'}
-          </button>
-        )}
+        <div className="controls">
+          <button type="button" className="round" aria-label="Previous step" onClick={() => go(-1)}>←</button>
+          <button type="button" className="round" aria-label="Next step" onClick={() => go(1)}>→</button>
+          {!still && <button type="button" className="play" aria-pressed={!playing} onClick={() => setPlaying((p) => !p)}>{playing ? 'Pause' : 'Play'}</button>}
+        </div>
       </div>
     </div>
   );

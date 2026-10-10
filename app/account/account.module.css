@@ -1,0 +1,7 @@
+.h2 { font-size: 21px; margin-top: 4px; }
+.order { display: grid; gap: 8px; padding: 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); color: var(--ink); text-decoration: none; }
+.order:hover { border-color: var(--accent); }
+.orderTop { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-family: var(--mono); font-size: 13px; color: var(--muted); }
+.bars { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; }
+.bars span { height: 6px; border-radius: 3px; background: var(--line); }
+.bars span.on { background: var(--accent); }

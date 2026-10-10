@@ -3,7 +3,7 @@
 // Signing in happens at /staff/sign-in. The database only lets workers and admins see or change any of this.
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase, money, STAGES, stageLabel } from '../../lib/supabase';
+import { supabase, money, STAGES, stageLabel, serviceSummary } from '../../lib/supabase';
 import { useAuth } from '../../lib/auth';
 import s from './staff.module.css';
 
@@ -41,7 +41,7 @@ function Dashboard({ email, userId, role }) {
     const [o, q] = await Promise.all([
       supabase.from('orders').select('*, order_items(name, price_cents, needs_quote, pair_id), order_pairs!order_pairs_order_id_fkey(id, position, shoe_model, shoe_size, shoe_color, notes), order_events(status, note, created_at)')
         .not('status', 'in', '(picked_up,cancelled)').order('created_at', { ascending: true }),
-      supabase.from('quote_requests').select('*').in('status', ['new', 'priced']).order('created_at', { ascending: true }),
+      supabase.from('quote_requests').select('*').in('status', ['new', 'priced', 'accepted']).order('created_at', { ascending: true }),
     ]);
     if (o.error || q.error) setError('Couldn’t load orders. Refresh to try again.');
     setOrders(o.data || []);
@@ -52,6 +52,8 @@ function Dashboard({ email, userId, role }) {
 
   const open = orders.find((o) => o.id === openId);
   const newQuotes = quotes.filter((q) => q.status === 'new').length;
+  const accepted = quotes.filter((q) => q.status === 'accepted').length;
+  const quoteNote = [newQuotes && `${newQuotes} new`, accepted && `${accepted} accepted`].filter(Boolean).join(' · ');
 
   return (
     <div className="wrap" style={{ paddingTop: 24, paddingBottom: 40 }}>
@@ -62,7 +64,7 @@ function Dashboard({ email, userId, role }) {
         </div>
         <div className="pills">
           <button className="pill" aria-pressed={tab === 'orders'} onClick={() => setTab('orders')}>Orders · {orders.length}</button>
-          <button className="pill" aria-pressed={tab === 'quotes'} onClick={() => setTab('quotes')}>Quotes{newQuotes ? ` · ${newQuotes} new` : ''}</button>
+          <button className="pill" aria-pressed={tab === 'quotes'} onClick={() => setTab('quotes')}>Quotes{quoteNote ? ` · ${quoteNote}` : ''}</button>
           <button className="pill" onClick={load}>Refresh</button>
           <button className="pill" onClick={signOut}>Sign out</button>
         </div>
@@ -88,7 +90,7 @@ function Dashboard({ email, userId, role }) {
                           ? <span className={`badge ${o.pickup_status === 'confirmed' ? 'ok' : 'warn'}`}>{o.pickup_status === 'confirmed' ? 'Pickup set' : 'Pickup req.'}</span>
                           : <span className="badge grey">Drop-off</span>}
                       </span>
-                      <strong>{itemSummary(o.order_items)}</strong>
+                      <strong>{serviceSummary(o.order_items)}</strong>
                       <span className="muted small">{o.shoe_model || 'Pair'}{o.shoe_size ? ` · ${o.shoe_size}` : ''}</span>
                       {o.status === 'inspected' || o.status === 'in_restoration' ? <span className="small">{stageLabel(o.status)}</span> : null}
                     </button>
@@ -130,7 +132,7 @@ function OrderDetail({ order, userId, onBack, onSaved }) {
       <button className="btn ghost small" style={{ justifySelf: 'start' }} onClick={onBack}>← All orders</button>
       <div>
         <div className="muted small" style={{ fontFamily: 'var(--mono)' }}>#{order.number} · {order.handoff === 'pickup' ? 'PICKUP' : 'DROP-OFF'} · {money(order.total_cents)}</div>
-        <h2 style={{ fontSize: 28 }}>{itemSummary(order.order_items)}</h2>
+        <h2 style={{ fontSize: 28 }}>{serviceSummary(order.order_items)}</h2>
         <div className="muted">{[order.shoe_model, order.shoe_size, order.shoe_color].filter(Boolean).join(' · ')}</div>
         {order.discount_cents > 0 && <div className="small" style={{ color: 'var(--ok)' }}>Includes {money(order.discount_cents)} deep clean bundle savings</div>}
       </div>
@@ -196,13 +198,6 @@ function OrderDetail({ order, userId, onBack, onSaved }) {
   );
 }
 
-// "Deep cleaning ×6 + Icing bottoms": one name per service, counted across pairs
-function itemSummary(items) {
-  const counts = new Map();
-  items.forEach((i) => counts.set(i.name, (counts.get(i.name) || 0) + 1));
-  return [...counts].map(([name, n]) => (n > 1 ? `${name} ×${n}` : name)).join(' + ');
-}
-
 function PairList({ order }) {
   const pairs = [...order.order_pairs].sort((a, b) => a.position - b.position);
   return (
@@ -256,9 +251,12 @@ function QuoteCard({ q, onSaved }) {
     <div className="card" style={{ display: 'grid', gap: 10 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
         <strong>#{q.number} · {q.kind || 'Paint'}{q.shoe_model ? ` · ${q.shoe_model}` : ''}</strong>
-        <span className={`badge ${q.status === 'priced' ? 'ok' : 'warn'}`}>{q.status === 'priced' ? 'Priced' : 'New'}</span>
+        <span className={`badge ${q.status === 'accepted' ? 'ok' : q.status === 'priced' ? 'grey' : 'warn'}`}>
+          {q.status === 'accepted' ? 'Accepted' : q.status === 'priced' ? 'Priced · waiting' : 'New'}
+        </span>
       </div>
       <div className="soft small">“{q.description}”</div>
+      {q.status === 'accepted' && <p className="small" style={{ margin: 0, color: 'var(--ok)' }}>The customer accepted. Text them to set up the drop-off or pickup.</p>}
       <div className="muted small">{q.email}{q.inspiration_url ? <> · <a href={q.inspiration_url} target="_blank" rel="noreferrer">inspiration</a></> : null}</div>
       <div className="row2">
         <label className="field">Price ($)<input className="input" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} /></label>

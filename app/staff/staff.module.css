@@ -167,3 +167,14 @@
   .mCount { font-size: 9px; gap: 3px; white-space: nowrap; overflow: hidden; }
   .kdot { width: 6px; height: 6px; }
 }
+
+/* order stages: labels under each bar on a laptop; on a phone just the bar plus "Booked · Stage 1 of 6" */
+.stages { display: grid; gap: 6px; }
+.stageBar { height: 6px; border-radius: 3px; }
+.stageLabel { margin-top: 6px; font-size: 12px; line-height: 1.3; overflow-wrap: break-word; hyphens: auto; }
+.stageNow { display: none; }
+@media (max-width: 760px) {
+  .stageNow { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
+  .stageLabel { display: none; }
+  .stages { gap: 4px; }
+}

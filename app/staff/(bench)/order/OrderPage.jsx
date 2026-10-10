@@ -92,11 +92,15 @@ function Stages({ order, update, busy }) {
   if (order.status === 'cancelled') return <div className="card"><span className="badge grey">Cancelled</span></div>;
   return (
     <div className="card" style={{ display: 'grid', gap: 12 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${STAGES.length}, minmax(0,1fr))`, gap: 4 }}>
+      <div className={s.stageNow}>
+        <strong>{STAGES[idx]?.label}</strong>
+        <span className="muted small">Stage {idx + 1} of {STAGES.length}{next ? ` · next: ${next.label}` : ''}</span>
+      </div>
+      <div className={s.stages} style={{ gridTemplateColumns: `repeat(${STAGES.length}, minmax(0,1fr))` }}>
         {STAGES.map((st, i) => (
           <div key={st.id}>
-            <div style={{ height: 6, borderRadius: 3, background: i <= idx ? 'var(--accent)' : 'var(--line)' }} />
-            <div className="small" style={{ marginTop: 6, fontWeight: i === idx ? 700 : 400, color: i <= idx ? 'var(--ink)' : 'var(--muted)', fontSize: 12 }}>{st.label}</div>
+            <div className={s.stageBar} style={{ background: i <= idx ? 'var(--accent)' : 'var(--line)' }} />
+            <div className={s.stageLabel} style={{ fontWeight: i === idx ? 700 : 400, color: i <= idx ? 'var(--ink)' : 'var(--muted)' }}>{st.label}</div>
           </div>
         ))}
       </div>

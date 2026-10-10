@@ -55,6 +55,11 @@ takes off the bundle savings (`deep_clean_discount`): biggest bundles first, usi
 Paint and other quoted services are booked at $0 with `needs_quote = true` and priced after review.
 The booking page shows the same math from `lib/pricing.js`, but the database's total is the one that counts.
 
+### Brand voice
+
+Customer-facing text speaks as the shop ("we", "the shop"), never as one person, so the brand stays the same
+whoever does the work. The only place a name appears is the founder's words in "The maker" on the home page.
+
 ### Book by photos
 
 `components/pairflow/PairFlow.jsx` takes one pair at a time, one question per screen: photos → what's wrong
@@ -66,7 +71,7 @@ Photos are shrunk to 1600px JPEGs in the browser and uploaded to the private `ph
 `incoming/<random>.jpg` (`lib/photos.js`). Visitors may only add files there, never read or change them.
 `create_booking` checks each photo exists and isn't used by another order, then saves it in `order_photos`
 (`kind = 'customer'`, with its `pair_id`), staff-only until staff choose to show it. The model is optional;
-"Not sure, let Criss look" is the `not_sure` service, booked at $0 like paint and priced after review.
+"Not sure, take a look for me" is the `not_sure` service, booked at $0 like paint and priced after review.
 
 ### Photos and reviews on the home page
 

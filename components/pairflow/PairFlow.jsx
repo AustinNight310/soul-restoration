@@ -21,7 +21,7 @@ const SAY = {
   suede: 'Suede looks flat or faded',
   sole_repair: 'Sole peeling or lifting',
   paint: 'Paint, recolor or custom',
-  not_sure: 'Not sure, let Criss look',
+  not_sure: 'Not sure, take a look for me',
 };
 const SIZES = {
   "Men's": ['4', '4.5', '5', '5.5', '6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '11.5', '12', '12.5', '13', '14', '15'],
@@ -307,11 +307,11 @@ export default function PairFlow({ start }) {
           <p className={s.model}>{pairName(pair, cur)}{pair.size ? <span className="muted"> · size {sizeText(pair)}</span> : null}</p>
           <ul className={s.lines}>
             {pair.services.map((id) => byId[id] && (
-              <li key={id}><span>{label(byId[id])}</span><span>{byId[id].kind === 'quote' ? 'Criss confirms' : money(byId[id].price_cents)}</span></li>
+              <li key={id}><span>{label(byId[id])}</span><span>{byId[id].kind === 'quote' ? 'Priced after review' : money(byId[id].price_cents)}</span></li>
             ))}
             <li className={s.tot}><span>This pair</span><span>{pairPrice(pair)}</span></li>
           </ul>
-          {reviewed(pair) && <p className={s.hint}>Criss checks the photos for paint or anything unsure and tells you the price before any work starts.</p>}
+          {reviewed(pair) && <p className={s.hint}>We check the photos for paint or anything unsure and tell you the price before any work starts.</p>}
         </div>
         <div className={s.go}>
           <button type="button" className={s.back} onClick={() => go('about')}>← Change</button>
@@ -384,7 +384,7 @@ export default function PairFlow({ start }) {
           {hefty ? (
             <div className="hefty">
               <strong>{pairs.length} pairs is a hefty job.</strong>
-              <span>Orders over {MAX_PAIRS} pairs get one price for everything. Send the list and Criss will reply. Nothing is booked or charged until you accept.</span>
+              <span>Orders over {MAX_PAIRS} pairs get one price for everything. Send the list and we’ll reply. Nothing is booked or charged until you accept.</span>
             </div>
           ) : ready.length > 0 && (
             <ul className={s.lines}>
@@ -395,8 +395,8 @@ export default function PairFlow({ start }) {
           )}
           {!hefty && (
             <p className={s.hint}>
-              {price.quoted.length > 0 && '+ Paint and “not sure” pairs are priced by Criss from your photos. '}
-              Criss double-checks every pair. If anything changes, you’ll hear before you pay. Prices are subject to change.
+              {price.quoted.length > 0 && '+ Paint and “not sure” pairs are priced from your photos. '}
+              We double-check every pair. If anything changes, you’ll hear before you pay. Prices are subject to change.
             </p>
           )}
           {nudge && <p className={s.nudge}>Add one more deep clean and the 3-pair bundle takes {money(3 * single - bundle3.price_cents)} off.</p>}
@@ -516,7 +516,7 @@ function QuoteSent({ result, signedIn }) {
     <div className={s.doneBox}>
       <div className={s.checkmark} aria-hidden="true">✓</div>
       <h2>Sent. Request #{result.number}.</h2>
-      <p className="muted" style={{ margin: 0 }}>Criss will look over all {result.pairs} pairs and reply with one price. Nothing is charged until you accept.</p>
+      <p className="muted" style={{ margin: 0 }}>We’ll look over all {result.pairs} pairs and reply with one price. Nothing is charged until you accept.</p>
       {signedIn && <Link href="/account?tab=quotes" className="btn primary block">See it in your account</Link>}
       <Link href="/" className="btn ghost block">Back to home</Link>
     </div>
@@ -529,10 +529,10 @@ function Booked({ result, email, signedIn }) {
     <div className={s.doneBox}>
       <div className={s.checkmark} aria-hidden="true">✓</div>
       <h2>You’re booked in. Order #{result.number}.</h2>
-      <p className="muted" style={{ margin: 0 }}>Criss looks over your photos, usually the same day, and tells you if anything changes. Keep your order number with your email ({email}).</p>
+      <p className="muted" style={{ margin: 0 }}>We look over your photos, usually the same day, and tell you if anything changes. Keep your order number with your email ({email}).</p>
       <ol className={s.next}>
-        <li><b>1</b><span>{result.needs_quote ? 'Criss prices the paint or “not sure” pairs and confirms the rest.' : 'Criss confirms your price from the photos.'}</span></li>
-        <li><b>2</b><span>{pickup ? 'He texts you to confirm the evening, then picks them up.' : <>Drop them off: <strong>{result.shop_address}</strong>. {result.shop_hours}</>}</span></li>
+        <li><b>1</b><span>{result.needs_quote ? 'We price the paint or “not sure” pairs and confirm the rest.' : 'We confirm your price from the photos.'}</span></li>
+        <li><b>2</b><span>{pickup ? 'We text you to confirm the evening, then pick them up.' : <>Drop them off: <strong>{result.shop_address}</strong>. {result.shop_hours}</>}</span></li>
         <li><b>3</b><span>Follow each pair on your tracking page until it’s back in your hands.</span></li>
       </ol>
       {signedIn ? (

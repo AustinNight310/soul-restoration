@@ -13,7 +13,7 @@ export default function ServicesPage() {
           <h1 className={styles.h2} style={{ fontSize: 'clamp(36px, 6vw, 56px)', marginBottom: 0 }}>Snap your pairs. See your price.</h1>
           <p className={styles.lede}>
             One pair at a time: a few photos, what’s wrong, the size. Your price adds up as you go, bundles included.
-            Criss double-checks the photos before anything is charged.
+            We double-check the photos before anything is charged.
           </p>
         </div>
       </section>
@@ -35,7 +35,7 @@ export default function ServicesPage() {
           <ol className={styles.steps}>
             <li><span>01</span><strong>Snap a pair</strong><p>Side, top and sole. Tick what’s wrong and add the size.</p></li>
             <li><span>02</span><strong>See your price</strong><p>It adds up as you go. Bundle savings come off on their own.</p></li>
-            <li><span>03</span><strong>Drop off or we pick up</strong><p>Drop off in the Bronx, or an evening pickup after 5pm. Criss checks the photos first.</p></li>
+            <li><span>03</span><strong>Drop off or we pick up</strong><p>Drop off in the Bronx, or an evening pickup after 5pm. We check the photos first.</p></li>
             <li><span>04</span><strong>Back to you</strong><p>Track every stage with your order number until it's ready for pickup.</p></li>
           </ol>
         </div>
@@ -48,7 +48,7 @@ export default function ServicesPage() {
           <div className={styles.faq}>
             <details open>
               <summary>Is the price on screen final?</summary>
-              <p>It’s what you pay unless Criss spots something in your photos. If he does, you hear before you pay. Paint and “not sure” pairs are always priced by Criss.</p>
+              <p>It’s what you pay unless we spot something in your photos. If we do, you hear before you pay. Paint and “not sure” pairs are always priced after we see the photos.</p>
             </details>
             <details>
               <summary>How long does it take?</summary>

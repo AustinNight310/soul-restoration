@@ -1,4 +1,5 @@
 import Menu from '../../components/Menu';
+import PairFlow from '../../components/pairflow/PairFlow';
 import styles from '../home.module.css';
 
 export const metadata = { title: 'Services and prices — Soul Restoration' };
@@ -6,17 +7,24 @@ export const metadata = { title: 'Services and prices — Soul Restoration' };
 export default function ServicesPage() {
   return (
     <>
-      <section className={styles.section} style={{ paddingBottom: 32 }}>
+      <section className={styles.section} style={{ paddingBottom: 28 }}>
         <div className="wrap">
           <div className="eyebrow">Services</div>
-          <h1 className={styles.h2} style={{ fontSize: 'clamp(36px, 6vw, 56px)' }}>What we do, and what it costs.</h1>
-          <p className={styles.lede} style={{ marginTop: 0 }}>
-            Prices are per pair. Mix services on each pair when you book, and deep cleans get bundle pricing automatically.
+          <h1 className={styles.h2} style={{ fontSize: 'clamp(36px, 6vw, 56px)', marginBottom: 0 }}>Snap your pairs. See your price.</h1>
+          <p className={styles.lede}>
+            One pair at a time: a few photos, what’s wrong, the size. Your price adds up as you go, bundles included.
+            Criss double-checks the photos before anything is charged.
           </p>
         </div>
       </section>
 
+      <section className="wrap" style={{ paddingBottom: 72 }}>
+        <PairFlow />
+      </section>
+
       <section className="wrap" style={{ paddingBottom: 64 }}>
+        <div className="eyebrow">All services</div>
+        <h2 className={styles.h2}>What we do, and what it costs.</h2>
         <Menu />
       </section>
 
@@ -25,9 +33,9 @@ export default function ServicesPage() {
           <div className="eyebrow">How it works</div>
           <h2 className={styles.h2}>Four steps, start to finish.</h2>
           <ol className={styles.steps}>
-            <li><span>01</span><strong>Book online</strong><p>Add each pair and pick what it needs, or request a quote for a paint job.</p></li>
-            <li><span>02</span><strong>Drop off or we pick up</strong><p>Drop off in the Bronx, or request an evening pickup after 5pm.</p></li>
-            <li><span>03</span><strong>Restored by hand</strong><p>Every pair is inspected first. If it needs more work, we ask before doing anything.</p></li>
+            <li><span>01</span><strong>Snap a pair</strong><p>Side, top and sole. Tick what’s wrong and add the size.</p></li>
+            <li><span>02</span><strong>See your price</strong><p>It adds up as you go. Bundle savings come off on their own.</p></li>
+            <li><span>03</span><strong>Drop off or we pick up</strong><p>Drop off in the Bronx, or an evening pickup after 5pm. Criss checks the photos first.</p></li>
             <li><span>04</span><strong>Back to you</strong><p>Track every stage with your order number until it's ready for pickup.</p></li>
           </ol>
         </div>
@@ -39,6 +47,10 @@ export default function ServicesPage() {
           <h2 className={styles.h2}>Good to know.</h2>
           <div className={styles.faq}>
             <details open>
+              <summary>Is the price on screen final?</summary>
+              <p>It’s what you pay unless Criss spots something in your photos. If he does, you hear before you pay. Paint and “not sure” pairs are always priced by Criss.</p>
+            </details>
+            <details>
               <summary>How long does it take?</summary>
               <p>It depends on the service and how many pairs are ahead of yours. You'll see an estimate when you book, and you can track your order the whole way.</p>
             </details>
@@ -48,7 +60,7 @@ export default function ServicesPage() {
             </details>
             <details>
               <summary>Can you pick my shoes up?</summary>
-              <p>Yes, in the evenings after 5pm. Request a pickup when you book and we'll text you to confirm the time.</p>
+              <p>Yes, in the evenings after 5pm. Choose pickup when you book and we'll text you to confirm the time.</p>
             </details>
             <details>
               <summary>What if my pair needs more work than I booked?</summary>

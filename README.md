@@ -8,8 +8,8 @@ This is the **shop-test build**: real screens and real data, but no online payme
 | Page | What it does |
 |---|---|
 | `/` | Home ("Our work"): a showroom — the pair on display, the collection, At the bench (the journey in six steps), Criss's words, reviews |
-| `/services` | Live service menu with prices, bundles, paint quotes, how it works, FAQ |
-| `/book` | 3-step booking: each pair and its services → drop-off or pickup → review, terms, book. Over 10 pairs sends a quote request instead |
+| `/services` | Book by photos (the flow below), then the live menu with prices, bundles, how it works, FAQ |
+| `/book` | The same book-by-photos flow on its own page; `/book?s=<service>` starts the first pair with that service ticked |
 | `/track` | Order status by order number + email (no login) |
 | `/quote` | Paint job quote request |
 | `/terms` | Draft service terms (replace before taking real payments) |
@@ -40,6 +40,19 @@ An order has up to 10 pairs (`order_pairs`), and each pair has its own services 
 takes off the bundle savings (`deep_clean_discount`): biggest bundles first, using the bundle rows in `services`.
 Paint and other quoted services are booked at $0 with `needs_quote = true` and priced after review.
 The booking page shows the same math from `lib/pricing.js`, but the database's total is the one that counts.
+
+### Book by photos
+
+`components/pairflow/PairFlow.jsx` takes one pair at a time, one question per screen: photos → what's wrong
+(written the way customers say it, each with its service and price) → "is this your pair?" → size.
+A confirmed pair without a size shows an amber "Size?" flag in the pair chips until it gets one. Then the whole
+order with bundle savings, then email and drop-off or pickup. More than 10 pairs sends one quote request instead.
+
+Photos are shrunk to 1600px JPEGs in the browser and uploaded to the private `photos` bucket under
+`incoming/<random>.jpg` (`lib/photos.js`). Visitors may only add files there, never read or change them.
+`create_booking` checks each photo exists and isn't used by another order, then saves it in `order_photos`
+(`kind = 'customer'`, with its `pair_id`), staff-only until staff choose to show it. The model is optional;
+"Not sure, let Criss look" is the `not_sure` service, booked at $0 like paint and priced after review.
 
 ### Photos and reviews on the home page
 

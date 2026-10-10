@@ -207,7 +207,7 @@ function PairList({ order }) {
         const items = order.order_items.filter((i) => i.pair_id === p.id);
         return (
           <div key={p.id} style={{ display: 'grid', gap: 4, borderTop: '1px solid var(--line)', paddingTop: 10 }}>
-            <div><span className="muted small" style={{ fontFamily: 'var(--mono)' }}>PAIR {p.position}</span> <strong>{p.shoe_model}</strong>
+            <div><span className="muted small" style={{ fontFamily: 'var(--mono)' }}>PAIR {p.position}</span> <strong>{p.shoe_model || `Pair ${p.position}`}</strong>
               <span className="muted small">{[p.shoe_size, p.shoe_color].filter(Boolean).map((x) => ` · ${x}`).join('')}</span></div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {items.map((i) => (

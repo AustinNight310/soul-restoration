@@ -22,6 +22,10 @@ This is the **shop-test build**: real screens and real data, but no online payme
 | `/staff/pickups` | Today's pickups in time order, upcoming ones, and requests that still need a time; call, text, map, mark collected |
 | `/staff/quotes` | Price paint and hefty-job quotes; see which ones customers accepted |
 | `/staff/ticket?id=…` | Printable 4×6 ticket per pair to keep with the shoes |
+| `/staff/menu` | Admins: names, prices, sample/confirmed, on or off the menu, order |
+| `/staff/team` | Admins: add staff by email, worker or admin, remove, cancel waiting invites |
+| `/staff/reports` | Admins: orders, pairs and booked value; pairs per week; popular services; time in each stage |
+| `/staff/settings` | Admins: shop address, hours and phone; activity log of orders, menu, team and settings changes |
 
 ## How it's put together
 
@@ -80,17 +84,17 @@ the account (`respond_to_quote()`); accepted quotes show up on the staff Quotes 
 
 ### Give someone staff access
 
-An admin runs `set_staff_role(email, role)` (the Team page will call it). If that email already has a
-login, the role changes straight away. If not, the email waits in `staff_invites` until they choose
+An admin adds them on the Team page (`/staff/team`), which calls `set_staff_role(email, role)`.
+If that email already has a login, the role changes straight away. If not, the email waits in `staff_invites` until they choose
 "set up your login" at `/staff/sign-in` and confirm their email. `'customer'` removes staff access.
 Admins can't change their own role, so there's always at least one admin.
 
-Until the Team page exists, add someone from the Supabase SQL editor:
+Workers and admins share the staff pages. Only admins can change the menu, cancel an order, set a
+quote's price (workers leave a suggestion), manage the team, and see reports, settings and the activity
+log. The database enforces this with triggers (`0009_admin_tools.sql`), not just the pages. Menu, team
+and settings changes are written to `activity_log` automatically.
 
-```sql
-insert into public.staff_invites (email, role) values ('their@email.com', 'worker');  -- no login yet
-update public.profiles set role = 'worker' where email = 'their@email.com';           -- already has one
-```
+The Supabase SQL editor isn't limited by these rules, so it still works for one-off fixes.
 
 The sign-in emails link back to `/account` and `/staff/sign-in`, so both must be allowed under
 Supabase → Authentication → URL Configuration → Redirect URLs (for example `https://<your domain>/**`).
@@ -109,6 +113,18 @@ npm install
 cp .env.example .env.local
 npm run dev
 ```
+
+## Before launch
+
+- [ ] Upgrade Supabase to Pro, then turn on **Prevent use of leaked passwords**
+      (Authentication → Sign In / Providers → Email). It's a Pro-only setting.
+- [ ] Add the real domain to Supabase → Authentication → URL Configuration: set the **Site URL** and add
+      `https://<your domain>/**` to **Redirect URLs**, so sign-in links and password resets land on the site.
+- [ ] Remove the old one-pair booking function that migration 0005 drops (it was never run on the live
+      database). In the SQL editor:
+      `drop function if exists public.create_booking(text, text[], text, text, text, text, text, text, text, text, boolean, text);`
+- [ ] Confirm the sample prices on `/staff/menu`.
+- [ ] Set `is_test = false` as the default for new orders and replace the draft `/terms` before taking payments.
 
 ## Not built yet
 

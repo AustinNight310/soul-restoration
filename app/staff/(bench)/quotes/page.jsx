@@ -1,7 +1,9 @@
 'use client';
-// Paint and hefty-job quotes: price new requests, and see which ones customers accepted.
+// Paint and hefty-job quotes. Admins price them; workers leave a suggested price for an admin.
+// Customers see their price in their account and can accept it there.
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../../../../lib/supabase';
+import { useStaff, firstName } from '../staff-shared';
 
 export default function QuotesPage() {
   const [quotes, setQuotes] = useState(null);
@@ -32,6 +34,8 @@ function Quotes({ quotes, onSaved }) {
 }
 
 function QuoteCard({ q, onSaved }) {
+  const { isAdmin, userId, person } = useStaff();
+  const [suggestion, setSuggestion] = useState(q.staff_suggestion || '');
   const [price, setPrice] = useState(q.price_cents ? String(q.price_cents / 100) : '');
   const [turnaround, setTurnaround] = useState(q.turnaround || '');
   const [message, setMessage] = useState(q.message || '');
@@ -51,6 +55,15 @@ function QuoteCard({ q, onSaved }) {
     if (!error) onSaved();
   }
 
+  async function suggest() {
+    setBusy(true);
+    const { error } = await supabase.from('quote_requests')
+      .update({ staff_suggestion: suggestion.trim() || null, staff_suggested_by: userId }).eq('id', q.id);
+    setBusy(false);
+    setFlash(error ? 'Didn’t save.' : 'Sent to the admins.');
+    if (!error) onSaved();
+  }
+
   return (
     <div className="card" style={{ display: 'grid', gap: 10 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
@@ -62,6 +75,18 @@ function QuoteCard({ q, onSaved }) {
       <div className="soft small">“{q.description}”</div>
       {q.status === 'accepted' && <p className="small" style={{ margin: 0, color: 'var(--ok)' }}>The customer accepted. Text them to set up the drop-off or pickup.</p>}
       <div className="muted small">{q.email}{q.inspiration_url ? <> · <a href={q.inspiration_url} target="_blank" rel="noreferrer">inspiration</a></> : null}</div>
+      {q.staff_suggestion && (isAdmin || q.staff_suggested_by !== userId) && (
+        <div className="small" style={{ margin: 0 }}><strong>Suggested by {firstName(person(q.staff_suggested_by)) || 'staff'}:</strong> {q.staff_suggestion}</div>
+      )}
+      {!isAdmin ? (
+        <>
+          <label className="field">Suggested price for the admins <span className="muted" style={{ fontWeight: 400 }}>(price, turnaround, notes)</span>
+            <textarea className="input" value={suggestion} onChange={(e) => setSuggestion(e.target.value)} placeholder="e.g. $120, about 5 days. Heel crackle needs two coats." style={{ minHeight: 72 }} />
+          </label>
+          <button className="btn ghost" disabled={busy || suggestion.trim() === (q.staff_suggestion || '')} style={{ justifySelf: 'start' }} onClick={suggest}>Send to admins</button>
+          <p className="muted small" style={{ margin: 0 }}>Only an admin can set the price the customer sees.</p>
+        </>
+      ) : (<>
       <div className="row2">
         <label className="field">Price ($)<input className="input" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} /></label>
         <label className="field">Turnaround<input className="input" value={turnaround} onChange={(e) => setTurnaround(e.target.value)} placeholder="e.g. 5 days" /></label>
@@ -71,6 +96,7 @@ function QuoteCard({ q, onSaved }) {
         <button className="btn primary" disabled={busy || !price} onClick={() => save('priced')}>Save price</button>
         <button className="btn ghost" disabled={busy} style={{ color: 'var(--danger)' }} onClick={() => save('cant_take')}>Can't take this job</button>
       </div>
+      </>)}
       {flash && <p className="small" role="status" style={{ margin: 0 }}>{flash}</p>}
     </div>
   );

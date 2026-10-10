@@ -16,6 +16,13 @@ const MENU = [
   { href: '/staff/pickups', label: 'Today’s pickups', count: 'pickups' },
   { href: '/staff/quotes', label: 'Quotes', count: 'quotes' },
 ];
+// Admins only. The pages check too, and the database is what actually enforces it.
+const ADMIN_MENU = [
+  { href: '/staff/menu', label: 'Menu & prices' },
+  { href: '/staff/team', label: 'Team' },
+  { href: '/staff/reports', label: 'Reports' },
+  { href: '/staff/settings', label: 'Settings & activity' },
+];
 
 export default function StaffShell({ children }) {
   const { ready, user, profile, role, isStaff, isAdmin, recovering, signOut } = useAuth();
@@ -69,7 +76,8 @@ export default function StaffShell({ children }) {
             <strong>{profile?.full_name || user.email}</strong>
             <span className="badge">{role === 'admin' ? 'Admin' : 'Worker'}</span>
           </div>
-          {MENU.map((m) => {
+          {[...MENU, ...(isAdmin ? [{ group: 'Admin' }, ...ADMIN_MENU] : [])].map((m) => {
+            if (m.group) return <div key={m.group} className={s.sideGroup}>{m.group}</div>;
             const on = m.href === '/staff' ? path === '/staff' || path.startsWith('/staff/order') : path.startsWith(m.href);
             const n = m.count && counts[m.count];
             return (

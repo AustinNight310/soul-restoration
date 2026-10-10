@@ -41,7 +41,7 @@ export default function OrderStatus({ order }) {
       <div className="soft small" style={{ display: 'grid', gap: 4 }}>
         {order.pairs?.length > 0 ? order.pairs.map((p) => (
           <div key={p.position} style={{ display: 'grid', gap: 2, paddingBottom: 6 }}>
-            <strong>{p.position}. {p.model}</strong>
+            <strong>{p.position}. {p.model || `Pair ${p.position}`}</strong>
             {p.items.map((it) => <ItemLine key={it.name} item={it} />)}
           </div>
         )) : order.items.map((it) => <ItemLine key={it.name} item={it} />)}

@@ -87,14 +87,14 @@ export default function CalendarPage() {
     <>
       <div className={s.calTop}>
         <div><div className="eyebrow">Calendar</div><h1 style={{ fontSize: 30 }}>{title}</h1></div>
-        <div className="pills">
+        <div className={`pills ${s.calNav}`}>
           <button className="pill" onClick={() => step(-1)} aria-label="Earlier">‹</button>
           <button className="pill" onClick={() => setAnchor(startOfDay(new Date()))}>Today</button>
           <button className="pill" onClick={() => step(1)} aria-label="Later">›</button>
           {['day', 'week', 'month'].map((v) => <button key={v} className="pill" aria-pressed={view === v} onClick={() => setView(v)}>{v[0].toUpperCase() + v.slice(1)}</button>)}
         </div>
       </div>
-      <div className="pills">
+      <div className={`pills ${s.calFilters}`}>
         <button className="pill" aria-pressed={who === 'all'} onClick={() => setWho('all')}>Everyone</button>
         <button className="pill" aria-pressed={who === 'mine'} onClick={() => setWho('mine')}>Mine</button>
         {Object.entries(KINDS).map(([k, v]) => (

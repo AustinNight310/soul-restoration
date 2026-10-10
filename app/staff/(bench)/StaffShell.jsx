@@ -77,6 +77,7 @@ export default function StaffShell({ children }) {
             <strong>{profile?.full_name || user.email}</strong>
             <span className="badge">{role === 'admin' ? 'Admin' : 'Worker'}</span>
           </div>
+          <div className={s.sideLinks}>
           {[...MENU, ...(isAdmin ? [{ group: 'Admin' }, ...ADMIN_MENU] : [])].map((m) => {
             if (m.group) return <div key={m.group} className={s.sideGroup}>{m.group}</div>;
             const on = m.href === '/staff' ? path === '/staff' || path.startsWith('/staff/order') : path.startsWith(m.href);
@@ -88,6 +89,7 @@ export default function StaffShell({ children }) {
             );
           })}
           <button type="button" className={s.sideLink} onClick={signOut}>Sign out</button>
+          </div>
         </nav>
         <div className={s.content}>{children}</div>
       </div>

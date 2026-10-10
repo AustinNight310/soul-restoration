@@ -1,0 +1,127 @@
+/* Book by photos: one card, one question at a time, the running price beside it on wide screens. */
+.layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+.card { min-width: 0; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 26px; box-shadow: var(--frame-shadow); }
+@media (max-width: 420px) { .card { padding: 20px 18px; } }
+.step { display: grid; gap: 20px; min-width: 0; }
+@media (prefers-reduced-motion: no-preference) { .step { animation: stepIn .25s ease both; } }
+@keyframes stepIn { from { opacity: 0; transform: translateY(6px); } }
+.grid { display: grid; gap: 14px; min-width: 0; }
+
+.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.top h2 { font-size: clamp(26px, 4vw, 30px); line-height: 1.1; }
+.kicker { margin: 0 0 4px; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.dots { display: flex; gap: 6px; padding-bottom: 8px; }
+.dots i { width: 28px; height: 4px; border-radius: 4px; background: var(--line); }
+.dots i.dotOn { background: var(--accent); }
+
+/* the tray: every pair as a chip; a confirmed pair without a size pulses amber */
+.tray { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: -4px; padding: 4px; }
+.tray::-webkit-scrollbar { display: none; }
+.tchip { flex: none; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px 0 4px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.tchip.on { border: 2px solid var(--accent); padding-left: 3px; }
+.tchip em { font-style: normal; font-family: var(--mono); font-size: 11px; font-weight: 400; }
+.tchip em.ok { color: var(--ok); }
+.tchip em.need { color: var(--warn); background: var(--warn-soft); border-radius: 999px; padding: 2px 7px; }
+.tchip.needs { animation: nudge 1.6s ease-in-out infinite; }
+@keyframes nudge { 50% { box-shadow: 0 0 0 4px rgba(245, 166, 35, .28); } }
+.tt { position: relative; flex: none; width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: var(--surface); display: grid; place-items: center; }
+.tt img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.tt.big { width: 76px; height: 76px; border-radius: 12px; }
+.ttEmpty { color: var(--muted); font-size: 12px; }
+
+/* photos */
+.thumbs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.thumb { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: var(--surface); border: 1px solid var(--line); display: grid; place-items: center; }
+.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.thumbNote { font-size: 13px; color: var(--muted); }
+.rm { position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; border-radius: 50%; border: 0; background: rgba(24, 29, 34, .75); color: #fff; font-size: 16px; line-height: 1; cursor: pointer; }
+.add { position: relative; overflow: hidden; aspect-ratio: 1; border: 1.5px dashed var(--stroke-strong); border-radius: 12px; display: grid; place-items: center; text-align: center; color: var(--accent); font-weight: 600; font-size: 14px; cursor: pointer; padding: 6px; }
+.add:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.add input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.add b { display: block; font-size: 26px; line-height: 1; font-weight: 500; }
+.hint { margin: 0; font-size: 13px; color: var(--muted); }
+
+/* what's wrong */
+.fixes { display: grid; gap: 8px; }
+.fix { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 12px; align-items: center; text-align: left; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--stroke-strong); background: var(--card); color: var(--ink); font: inherit; cursor: pointer; }
+.fix[aria-pressed="true"] { border: 2px solid var(--accent); background: var(--selected); padding: 11px 13px; }
+.box { width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid var(--stroke-strong); display: grid; place-items: center; }
+.fix[aria-pressed="true"] .box { background: var(--accent); border-color: var(--accent); }
+.fix[aria-pressed="true"] .box::after { content: '✓'; color: var(--accent-ink); font-size: 13px; font-weight: 700; }
+.say { font-weight: 600; font-size: 15px; line-height: 1.3; }
+.say small { display: block; font-weight: 400; font-size: 12px; color: var(--muted); }
+.pr { font-family: var(--mono); font-size: 14px; color: var(--accent); white-space: nowrap; }
+.running { display: flex; justify-content: space-between; margin: 0; font-size: 15px; border-top: 1px solid var(--line); padding-top: 12px; }
+.running b { font-family: var(--mono); font-weight: 400; color: var(--accent); }
+
+/* is this your pair? */
+.strip { display: flex; gap: 8px; }
+.model { margin: 0; font-family: var(--display); font-size: 22px; }
+.lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.lines li { display: flex; justify-content: space-between; gap: 12px; font-size: 15px; }
+.lines li span:last-child { font-family: var(--mono); white-space: nowrap; }
+.lines .save { color: var(--ok); }
+.lines .tot { border-top: 1px solid var(--line); padding-top: 10px; font-weight: 600; font-size: 17px; }
+.lines .tot span:last-child { color: var(--accent); }
+
+/* size */
+.flag { display: flex; gap: 10px; align-items: center; margin: 0; font-size: 14px; font-weight: 600; background: var(--warn-soft); color: var(--warn); border-radius: 12px; padding: 10px 12px; }
+.flag i { width: 8px; height: 8px; border-radius: 50%; background: #f5a623; flex: none; animation: nudge 1.6s ease-in-out infinite; }
+.flag.flagDone { background: var(--ok-soft); color: var(--ok); }
+.flag.flagDone i { background: var(--ok); animation: none; }
+.seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: var(--surface); border-radius: 12px; padding: 4px; gap: 4px; }
+.seg button { min-height: 40px; border: 0; border-radius: 9px; background: none; font: inherit; font-weight: 600; font-size: 14px; color: var(--muted); cursor: pointer; }
+.seg button[aria-checked="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
+.sizes { display: grid; grid-template-columns: repeat(auto-fill, minmax(58px, 1fr)); gap: 8px; }
+.sizes button { min-height: 46px; border-radius: 10px; border: 1px solid var(--stroke-strong); background: var(--card); color: var(--ink); font-family: var(--mono); font-size: 14px; cursor: pointer; }
+.sizes button[aria-checked="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.ready { display: grid; gap: 12px; background: var(--ok-soft); border-radius: 14px; padding: 14px; }
+.ready p { margin: 0; }
+.ready p b { color: var(--ok); }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.two :global(.btn) { padding-inline: 10px; white-space: nowrap; }
+
+/* your price */
+.order { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.order li { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; grid-template-rows: auto auto; column-gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; }
+.order .tt { width: 44px; height: 44px; border-radius: 10px; grid-row: span 2; }
+.who b { display: block; font-weight: 600; }
+.who small { display: block; color: var(--muted); font-size: 13px; }
+.order :global(.linkbtn) { grid-column: 3; justify-self: end; font-size: 13px; }
+.nudge { margin: 0; font-size: 14px; color: var(--badge-ink); background: var(--accent-soft); border-radius: 12px; padding: 10px 12px; }
+
+/* almost done */
+.reach { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.reach button { min-height: 56px; border-radius: 12px; border: 1px solid var(--stroke-strong); background: var(--card); color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; }
+.reach button[aria-checked="true"] { border: 2px solid var(--accent); background: var(--selected); }
+.reach small { display: block; font-weight: 400; font-size: 12px; color: var(--muted); }
+.check { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; cursor: pointer; }
+.check input { width: 22px; height: 22px; flex: none; accent-color: var(--accent); margin: 0; }
+
+/* card footer: one main button, one quiet back link */
+.go { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.back { background: none; border: 0; padding: 8px 0; font: inherit; color: var(--muted); cursor: pointer; }
+.quiet { justify-self: center; background: none; border: 0; padding: 4px; font: inherit; font-size: 14px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.promise { margin: 0; font-size: 13px; color: var(--muted); text-align: center; }
+
+/* booked */
+.doneBox { display: grid; gap: 16px; justify-items: center; text-align: center; }
+.doneBox h2 { font-size: 28px; }
+.doneBox :global(.btn) { width: 100%; }
+.checkmark { width: 64px; height: 64px; border-radius: 50%; background: var(--ok-soft); color: var(--ok); display: grid; place-items: center; font-size: 30px; }
+.next { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; text-align: left; width: 100%; }
+.next li { display: flex; gap: 12px; align-items: flex-start; }
+.next b { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--badge-ink); display: grid; place-items: center; font-family: var(--mono); font-size: 12px; }
+
+/* beside the card */
+.side { display: grid; gap: 14px; min-width: 0; }
+.est, .bund { border: 1px solid var(--line); border-radius: 18px; padding: 22px; display: grid; gap: 10px; }
+.est { background: var(--surface); }
+.est h3, .bund h3 { font-family: var(--display); font-weight: 500; font-size: 21px; }
+.bund ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 15px; }
+.bund li { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--line); padding-bottom: 6px; }
+.bund li span:last-child { font-family: var(--mono); color: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) { .tchip.needs, .flag i { animation: none; } }
+@media (max-width: 860px) { .est { display: none; } }

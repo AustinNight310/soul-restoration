@@ -63,8 +63,8 @@ export default function Tracker() {
                   <li key={s.id} style={{ display: 'flex', gap: 12 }}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 16 }}>
                       <span style={{ width: 14, height: 14, borderRadius: '50%', boxSizing: 'border-box',
-                        background: doneStage ? 'var(--accent)' : '#fff',
-                        border: now ? '4px solid var(--accent)' : doneStage ? 'none' : '2px solid rgba(16,21,27,0.22)' }} />
+                        background: doneStage ? 'var(--accent)' : 'var(--card)',
+                        border: now ? '4px solid var(--accent)' : doneStage ? 'none' : '2px solid var(--stroke-strong)' }} />
                       {i < STAGES.length - 1 && <span style={{ width: 2, flex: 1, minHeight: 26, background: doneStage ? 'var(--accent)' : 'var(--line)' }} />}
                     </div>
                     <div style={{ paddingBottom: 12, marginTop: -3 }}>

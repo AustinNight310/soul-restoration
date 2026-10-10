@@ -14,10 +14,11 @@ This is the **shop-test build**: real screens and real data, but no online payme
 | `/quote` | Paint job quote request |
 | `/terms` | Draft service terms (replace before taking real payments) |
 | `/sign-in` | Customer sign-in: we email a link, no password |
-| `/account` | The signed-in customer's orders (open and past, each with its full status), quotes to accept or decline, and profile |
+| `/account` | The signed-in customer's orders (open and past, each with its full status and expected ready date), how they want their pairs back (pick up or delivery), quotes to accept or decline, and profile |
 | `/staff/sign-in` | Staff sign-in with a password, forgot password, and "set up your login" for new staff |
 | `/staff` | The bench: open orders by stage, filter to your own or unassigned |
 | `/staff/order?id=…` | One order: move stages, check-in and bench photos (choose what the customer sees), assign, pickup time, notes, full history |
+| `/staff/calendar` | Pickups, deliveries and due dates by day, week or month, for everyone or just you. Drag a stop to a new time on a laptop, or use Change time anywhere; optionally text the customer the new time |
 | `/staff/search` | Every order, open or done, by number, email, phone, shoe or service |
 | `/staff/pickups` | Today's pickups in time order, upcoming ones, and requests that still need a time; call, text, map, mark collected |
 | `/staff/quotes` | Price paint and hefty-job quotes; see which ones customers accepted |
@@ -25,7 +26,7 @@ This is the **shop-test build**: real screens and real data, but no online payme
 | `/staff/menu` | Admins: names, prices, sample/confirmed, on or off the menu, order |
 | `/staff/team` | Admins: add staff by email, worker or admin, remove, cancel waiting invites |
 | `/staff/reports` | Admins: orders, pairs and booked value; pairs per week; popular services; time in each stage |
-| `/staff/settings` | Admins: shop address, hours and phone; activity log of orders, menu, team and settings changes |
+| `/staff/settings` | Admins: shop address, hours and phone; delivery fee, usual turnaround and closed days; activity log of orders, menu, team and settings changes |
 
 ## How it's put together
 
@@ -106,6 +107,15 @@ Staff take check-in and bench photos on the order page (phone camera or files). 
 `order_photos`. New photos are visible to the customer (in their account) unless staff switch one to
 "Staff only". The storage rules only let a customer open visible photos of their own orders.
 
+### Calendar, due dates and delivery
+
+When an order moves to *Received* it gets a due date: today plus the usual turnaround (Settings, 7 days
+to start), at 6 PM. Staff can change it on the order page. Finished pairs go back the way the customer
+chooses in their account: picked up at the shop (free) or delivered (the delivery fee). The fee is blank
+until an admin sets it in `/staff/settings`. Customers see "fee set by the shop" until then, and each
+delivery keeps the fee from when it was requested. Deliveries show on the calendar next to pickups.
+Marking a delivery delivered moves the order to *Picked up*.
+
 ## Run locally
 
 ```bash
@@ -124,6 +134,7 @@ npm run dev
       database). In the SQL editor:
       `drop function if exists public.create_booking(text, text[], text, text, text, text, text, text, text, text, boolean, text);`
 - [ ] Confirm the sample prices on `/staff/menu`.
+- [ ] Set the delivery fee on `/staff/settings`.
 - [ ] Set `is_test = false` as the default for new orders and replace the draft `/terms` before taking payments.
 
 ## Not built yet

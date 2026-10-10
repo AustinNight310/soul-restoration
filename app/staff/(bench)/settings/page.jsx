@@ -17,7 +17,7 @@ const FILTERS = [
 ];
 
 export default function SettingsPage() {
-  return <AdminOnly><Settings /><Activity /></AdminOnly>;
+  return <AdminOnly><Settings /><CalendarSettings /><Activity /></AdminOnly>;
 }
 
 function Settings() {
@@ -58,6 +58,54 @@ function Settings() {
         </form>
       )}
     </>
+  );
+}
+
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+// Delivery fee (blank until the shop decides), the usual turnaround for due dates, and closed days.
+function CalendarSettings() {
+  const [form, setForm] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(null);
+  useEffect(() => {
+    supabase.rpc('get_calendar_settings').then(({ data }) => setForm({
+      fee: data?.delivery_fee_cents == null ? '' : String(data.delivery_fee_cents / 100),
+      days: String(data?.default_turnaround_days ?? 7),
+      closed: data?.closed_days || [],
+    }));
+  }, []);
+  async function save(e) {
+    e.preventDefault();
+    const fee = form.fee.trim() === '' ? null : Math.round(parseFloat(form.fee.replace(/[^0-9.]/g, '')) * 100);
+    if (fee !== null && !Number.isFinite(fee)) return setMsg({ error: 'The delivery fee should be a number, like 15.' });
+    setBusy(true); setMsg(null);
+    const { error } = await supabase.rpc('set_calendar_settings', { p_delivery_fee_cents: fee, p_turnaround_days: parseInt(form.days, 10) || 7, p_closed_days: form.closed });
+    setBusy(false);
+    setMsg(error ? { error: error.message } : { ok: 'Saved.' });
+  }
+  if (!form) return null;
+  const toggle = (d) => setForm({ ...form, closed: form.closed.includes(d) ? form.closed.filter((x) => x !== d) : [...form.closed, d].sort() });
+  return (
+    <form className="card" onSubmit={save} style={{ display: 'grid', gap: 12, maxWidth: 640 }}>
+      <strong>Calendar &amp; delivery</strong>
+      <div className="row2">
+        <label className="field">Delivery fee ($) <span className="muted" style={{ fontWeight: 400 }}>(leave blank until it’s decided)</span>
+          <input className="input" inputMode="decimal" value={form.fee} onChange={(e) => setForm({ ...form, fee: e.target.value })} placeholder="Not set yet" />
+        </label>
+        <label className="field">Usual turnaround (days) <span className="muted" style={{ fontWeight: 400 }}>(sets the due date)</span>
+          <input className="input" inputMode="numeric" value={form.days} onChange={(e) => setForm({ ...form, days: e.target.value })} />
+        </label>
+      </div>
+      <div>
+        <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 8 }}>Closed days</div>
+        <div className="pills">{DAYS.map((d, i) => <button key={d} type="button" className="pill" aria-pressed={form.closed.includes(i)} onClick={() => toggle(i)}>{d}</button>)}</div>
+      </div>
+      <span className="muted small">Customers see the fee when they choose delivery. Changing it doesn’t change deliveries already requested. Closed days are greyed out on the calendar and can’t take pickups.</span>
+      {msg?.error && <p className="error" role="alert">{msg.error}</p>}
+      {msg?.ok && <p className="notice" role="status">{msg.ok}</p>}
+      <button className="btn primary" disabled={busy} style={{ justifySelf: 'start' }}>{busy ? 'Saving…' : 'Save'}</button>
+    </form>
   );
 }
 

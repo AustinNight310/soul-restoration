@@ -36,7 +36,7 @@ export default function Account() {
   const load = useCallback(async () => {
     const [o, q] = await Promise.all([
       supabase.from('orders')
-        .select('id, number, status, handoff, pickup_status, pickup_time, total_cents, created_at, email, shoe_model, order_items(name), order_pairs!order_pairs_order_id_fkey(shoe_model, position)')
+        .select('id, number, status, handoff, pickup_status, pickup_time, pickup_address, total_cents, created_at, email, shoe_model, due_at, return_method, return_status, return_time, return_address, return_phone, return_evening, return_fee_cents, order_items(name), order_pairs!order_pairs_order_id_fkey(shoe_model, position)')
         .eq('user_id', userId).order('created_at', { ascending: false }),
       supabase.from('quote_requests')
         .select('id, number, kind, description, shoe_model, status, price_cents, turnaround, message, expires_at, created_at')
@@ -62,7 +62,7 @@ export default function Account() {
   const openOrder = orders?.find((o) => o.number === openNumber);
   const waiting = quotes.filter((q) => q.status === 'priced' && !isExpired(q));
 
-  if (openOrder) return <OrderDetail order={openOrder} />;
+  if (openOrder) return <OrderDetail order={openOrder} onChanged={load} />;
 
   return (
     <div className="narrow" style={{ paddingTop: 32, paddingBottom: 40, display: 'grid', gap: 18 }}>
@@ -155,7 +155,7 @@ function OrderCard({ o, past }) {
   );
 }
 
-function OrderDetail({ order }) {
+function OrderDetail({ order, onChanged }) {
   const [status, setStatus] = useState(null);
   const [error, setError] = useState('');
   useEffect(() => {
@@ -171,9 +171,82 @@ function OrderDetail({ order }) {
       <Link href="/account" className="btn ghost small" style={{ justifySelf: 'start' }}>← My orders</Link>
       {error && <p className="error" role="alert">{error}</p>}
       {status ? <OrderStatus order={status} /> : !error && <p className="muted">Loading…</p>}
+      {order.due_at && !DONE.includes(order.status) && order.status !== 'ready_for_pickup' && (
+        <p className="small" style={{ margin: 0 }}>Expected ready by <strong>{new Date(order.due_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</strong>.</p>
+      )}
+      {!DONE.includes(order.status) && <ReturnChoice order={order} onChanged={onChanged} />}
       <BenchPhotos orderId={order.id} />
       <p className="muted small" style={{ margin: 0 }}>Questions about this order? Text <strong>347-238-9320</strong> with #{order.number}.</p>
     </div>
+  );
+}
+
+const EVENINGS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+// How the customer wants their finished pairs back: pick up at the shop, or delivery for a fee.
+function ReturnChoice({ order, onChanged }) {
+  const { profile } = useAuth();
+  const [settings, setSettings] = useState(null);
+  const [method, setMethod] = useState(order.return_method || 'shop');
+  const [form, setForm] = useState({
+    address: order.return_address || order.pickup_address || '',
+    phone: order.return_phone || profile?.phone || '',
+    evening: order.return_evening || '',
+  });
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(null);
+  useEffect(() => { supabase.rpc('get_calendar_settings').then(({ data }) => setSettings(data || {})); }, []);
+
+  const fee = order.return_method === 'delivery' && order.return_fee_cents != null ? order.return_fee_cents : settings?.delivery_fee_cents;
+  const feeText = fee == null ? 'fee set by the shop' : `+${money(fee)}`;
+  const unchanged = method === (order.return_method || null) && (method !== 'delivery'
+    || (form.address === (order.return_address || '') && form.phone === (order.return_phone || '') && form.evening === (order.return_evening || '')));
+  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+
+  async function save(e) {
+    e.preventDefault();
+    setBusy(true); setMsg(null);
+    const { error } = await supabase.rpc('choose_return', { p_order_id: order.id, p_method: method, p_address: form.address, p_phone: form.phone, p_evening: form.evening || null });
+    setBusy(false);
+    if (error) return setMsg({ error: error.message });
+    setMsg({ ok: method === 'delivery' ? 'Got it. We’ll text you to confirm the delivery time.' : 'Got it. We’ll text you when they’re ready to collect.' });
+    onChanged();
+  }
+
+  return (
+    <form className="card" onSubmit={save} style={{ display: 'grid', gap: 12 }}>
+      <h2 className={s.h2} style={{ marginTop: 0 }}>{order.status === 'ready_for_pickup' ? 'Your pairs are ready. How do you want them back?' : 'How do you want them back?'}</h2>
+      {order.return_method === 'delivery' && order.return_time && <p className="notice" style={{ margin: 0 }}>Delivery set for <strong>{order.return_time}</strong>.</p>}
+      <div className="stack" role="radiogroup" aria-label="How you want your pairs back">
+        <button type="button" className="option" role="radio" aria-checked={method === 'shop'} onClick={() => setMethod('shop')}>
+          <span className="top"><span className="name">Pick up at the shop</span><span className="price">Free</span></span>
+          <span className="desc">In the Bronx. The address and hours are on your order. Text us before you come.</span>
+        </button>
+        <button type="button" className="option" role="radio" aria-checked={method === 'delivery'} onClick={() => setMethod('delivery')}>
+          <span className="top"><span className="name">Deliver to me</span><span className="price">{feeText}</span></span>
+          <span className="desc">An evening after 5pm. We text you to confirm the time before we head over.</span>
+        </button>
+      </div>
+      {method === 'delivery' && (
+        <>
+          <label className="field">Delivery address<input className="input" autoComplete="street-address" value={form.address} onChange={set('address')} required /></label>
+          <div>
+            <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 8 }}>Best evening</div>
+            <div className="pills">{EVENINGS.map((d) => <button key={d} type="button" className="pill" aria-pressed={form.evening === d} onClick={() => setForm({ ...form, evening: form.evening === d ? '' : d })}>{d}</button>)}</div>
+          </div>
+          <label className="field">Mobile for the delivery text<input className="input" type="tel" autoComplete="tel" value={form.phone} onChange={set('phone')} required /></label>
+          <div className="soft small" style={{ display: 'grid', gap: 4 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Order</span><span style={{ fontFamily: 'var(--mono)' }}>{money(order.total_cents)}</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Delivery</span><span style={{ fontFamily: 'var(--mono)' }}>{fee == null ? 'set by the shop' : money(fee)}</span></div>
+            {fee != null && <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--line)', paddingTop: 4 }}><strong>Due at hand-back</strong><strong style={{ fontFamily: 'var(--mono)' }}>{money(order.total_cents + fee)}</strong></div>}
+          </div>
+        </>
+      )}
+      {msg?.error && <p className="error" role="alert">{msg.error}</p>}
+      {msg?.ok && <p className="notice" role="status">{msg.ok}</p>}
+      <button className="btn primary block" disabled={busy || unchanged}>{busy ? 'Saving…' : method === 'delivery' ? (order.return_method === 'delivery' ? 'Update delivery' : 'Request delivery') : 'I’ll pick them up'}</button>
+      <p className="muted small" style={{ margin: 0 }}>You can change this any time before your pairs leave the bench.</p>
+    </form>
   );
 }
 

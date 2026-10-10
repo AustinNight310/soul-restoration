@@ -1,0 +1,13 @@
+.page { max-width: 1120px; margin: 24px auto 0; padding-inline: 20px; display: flex; flex-wrap: wrap; }
+.panel { flex: 1 1 360px; display: grid; gap: 14px; align-content: center; padding: 44px; border-radius: var(--radius) 0 0 var(--radius); background: var(--deep); color: var(--on-deep); min-height: 280px; }
+.panel a { color: var(--sky); }
+.kicker { font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--sky); }
+.title { font-size: 44px; line-height: 1.1; color: var(--on-deep); }
+.lede { margin: 0; color: var(--deep-soft); max-width: 380px; }
+.formSide { flex: 1 1 360px; display: flex; align-items: center; justify-content: center; padding: 40px 24px; border: 1px solid var(--line); border-left: 0; border-radius: 0 var(--radius) var(--radius) 0; background: var(--card); }
+.form { width: 100%; max-width: 400px; display: grid; gap: 14px; }
+@media (max-width: 760px) {
+  .panel { border-radius: var(--radius) var(--radius) 0 0; padding: 28px; min-height: 0; }
+  .title { font-size: 34px; }
+  .formSide { border-left: 1px solid var(--line); border-top: 0; border-radius: 0 0 var(--radius) var(--radius); padding: 28px 20px; }
+}

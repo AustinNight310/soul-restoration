@@ -13,6 +13,9 @@ This is the **shop-test build**: real screens and real data, but no online payme
 | `/track` | Order status by order number + email (no login) |
 | `/quote` | Paint job quote request |
 | `/terms` | Draft service terms (replace before taking real payments) |
+| `/sign-in` | Customer sign-in: we email a link, no password |
+| `/account` | The signed-in customer's account (orders and quotes come in the next phase) |
+| `/staff/sign-in` | Staff sign-in with a password, forgot password, and "set up your login" for new staff |
 | `/staff` | Staff dashboard: order board, move stages, confirm pickups, notes, price quotes |
 
 ## How it's put together
@@ -22,7 +25,7 @@ This is the **shop-test build**: real screens and real data, but no online payme
 - The browser only ever uses the public *publishable* key. Row-level security decides what each visitor can see:
   - anyone can read the active menu;
   - bookings, quotes and tracking go through database functions (`create_booking`, `create_quote_request`, `get_order_status`) that validate input and calculate prices themselves;
-  - only accounts with `role = 'staff'` can see or change orders.
+  - only staff accounts (`role` is `worker` or `admin`) can see or change orders.
 - The shop address lives in `private.settings` and is only returned to someone who just booked a drop-off, or who tracks their order with the right number + email.
 
 ## Database
@@ -56,13 +59,31 @@ last frame for visitors who turn off motion.
 The switch in the header sets `data-theme="night"` on `<html>` and remembers it on the device.
 All colors come from the tokens at the top of `app/globals.css`; add new colors there, not inline.
 
+### Accounts and roles
+
+Every login has a `role` in `profiles`: `customer` (the default), `worker` or `admin`.
+Workers and admins use the staff pages; admins also manage the team. `lib/auth.js` tells every page
+who is signed in and as what, but the database rules are what actually allow or block anything.
+People can edit their own name and phone, never their role.
+
+Customers sign in at `/sign-in` with an emailed link. Staff sign in at `/staff/sign-in` with a password.
+
 ### Give someone staff access
 
-They create a login at `/staff`, confirm their email, then run in the Supabase SQL editor:
+An admin runs `set_staff_role(email, role)` (the Team page will call it). If that email already has a
+login, the role changes straight away. If not, the email waits in `staff_invites` until they choose
+"set up your login" at `/staff/sign-in` and confirm their email. `'customer'` removes staff access.
+Admins can't change their own role, so there's always at least one admin.
+
+Until the Team page exists, add someone from the Supabase SQL editor:
 
 ```sql
-update public.profiles set role = 'staff' where email = 'their@email.com';
+insert into public.staff_invites (email, role) values ('their@email.com', 'worker');  -- no login yet
+update public.profiles set role = 'worker' where email = 'their@email.com';           -- already has one
 ```
+
+The sign-in emails link back to `/account` and `/staff/sign-in`, so both must be allowed under
+Supabase → Authentication → URL Configuration → Redirect URLs (for example `https://<your domain>/**`).
 
 ## Run locally
 

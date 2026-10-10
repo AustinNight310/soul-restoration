@@ -2,6 +2,8 @@ import './globals.css';
 import Link from 'next/link';
 import Nav from '../components/Nav';
 import ThemeSwitch from '../components/ThemeSwitch';
+import AccountButton from '../components/AccountButton';
+import { AuthProvider } from '../lib/auth';
 
 export const metadata = {
   title: 'Soul Restoration — Sneaker restoration in the Bronx',
@@ -23,22 +25,25 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        <div className="testbar">Test version: no real payments are taken. Sample prices shown.</div>
-        <header className="site-head">
-          <div className="wrap">
-            <Link href="/" className="wordmark">Soul<span>·</span>Restoration</Link>
-            <Nav />
-            <ThemeSwitch />
-          </div>
-        </header>
-        <main>{children}</main>
-        <footer className="site-foot">
-          <div className="wrap">
-            <span>© 2026 Soul Restoration · Bronx, NY</span>
-            <span><a href="https://www.instagram.com/_soulsneakers__/" target="_blank" rel="noreferrer">Instagram @_soulsneakers__</a> · Text 347-238-9320</span>
-            <Link href="/staff" className="muted">Staff</Link>
-          </div>
-        </footer>
+        <AuthProvider>
+          <div className="testbar">Test version: no real payments are taken. Sample prices shown.</div>
+          <header className="site-head">
+            <div className="wrap">
+              <Link href="/" className="wordmark">Soul<span>·</span>Restoration</Link>
+              <Nav />
+              <AccountButton />
+              <ThemeSwitch />
+            </div>
+          </header>
+          <main>{children}</main>
+          <footer className="site-foot">
+            <div className="wrap">
+              <span>© 2026 Soul Restoration · Bronx, NY</span>
+              <span><a href="https://www.instagram.com/_soulsneakers__/" target="_blank" rel="noreferrer">Instagram @_soulsneakers__</a> · Text 347-238-9320</span>
+              <Link href="/staff" className="muted">Staff</Link>
+            </div>
+          </footer>
+        </AuthProvider>
       </body>
     </html>
   );

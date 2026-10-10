@@ -24,8 +24,8 @@
   --field: #ffffff;
   --head: rgba(255,255,255,0.94);
   --selected: #f0f7fc;
-  --stroke: var(--stroke);
-  --stroke-strong: var(--stroke-strong);
+  --stroke: rgba(16,21,27,0.12);
+  --stroke-strong: rgba(16,21,27,0.18);
   --on-ink: #ffffff;
   --deep: #181d22;
   --on-deep: #ffffff;
@@ -202,9 +202,23 @@ textarea.input { min-height: 96px; resize: vertical; }
 .mode-thumb { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: #181d22; color: #fff; transition: transform .3s ease, background-color .3s ease; }
 .mode-thumb svg { width: 14px; height: 14px; }
 :root[data-theme="night"] .mode-thumb { transform: translateX(30px); background: #fff; color: #181d22; }
+/* account: "Sign in" or the round initial with its menu */
+.account { position: relative; display: inline-flex; flex: none; }
+.site-head .account.btn { min-height: 38px; padding: 0 14px; }
+.avatar { width: 38px; height: 38px; border-radius: 50%; border: 0; background: var(--accent); color: var(--accent-ink); font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; }
+.account-menu { position: absolute; top: calc(100% + 8px); right: 0; z-index: 30; width: 240px; display: grid; padding: 6px 0; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--frame-shadow); }
+.account-who { display: grid; padding: 8px 16px 10px; margin-bottom: 4px; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.account-menu a, .account-menu button { display: flex; align-items: center; min-height: 44px; padding: 0 16px; color: var(--ink); text-decoration: none; font: inherit; font-weight: 600; font-size: 15px; background: none; border: 0; width: 100%; text-align: left; cursor: pointer; }
+.account-menu a:hover, .account-menu button:hover { background: var(--surface); }
+.account-menu .account-out { color: var(--danger); border-top: 1px solid var(--line); margin-top: 4px; }
 @media (max-width: 640px) {
   .site-head .wrap { padding-block: 8px; }
   .site-head .nav { order: 3; width: 100%; margin-left: 0; justify-content: space-between; gap: 12px; }
+  .site-head .account { order: 2; margin-left: auto; }
   .site-head .mode-switch { order: 2; margin-left: auto; }
+  .site-head .account ~ .mode-switch { margin-left: 0; }
 }
+
+/* sign-in pages */
+.notice { background: var(--ok-soft); color: var(--ok); border-radius: 12px; padding: 12px 14px; font-size: 14px; }
 @media (prefers-reduced-motion: reduce) { .mode-thumb, body { transition: none; } }

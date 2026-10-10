@@ -33,7 +33,7 @@ export default function QuotePage() {
       <div className="narrow" style={{ paddingTop: 40, paddingBottom: 40, display: 'grid', gap: 16 }}>
         <span className="badge" style={{ justifySelf: 'start' }}>Request #{sent.number}</span>
         <h1 style={{ fontSize: 38 }}>Request sent.</h1>
-        <p style={{ margin: 0 }}>Text a few photos of the pair (side, top and sole) to <strong>347-238-9320</strong> with your request number. Criss will reply with a price. Nothing is charged until you accept.</p>
+        <p style={{ margin: 0 }}>Text a few photos of the pair (side, top and sole) to <strong>347-238-9320</strong> with your request number. We’ll reply with a price. Nothing is charged until you accept.</p>
         {user && <Link href="/account?tab=quotes" className="btn primary block">See it in your account</Link>}
         <Link href="/" className="btn ghost block">Back to home</Link>
       </div>

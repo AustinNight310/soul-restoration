@@ -76,7 +76,7 @@ export default function Menu() {
         <Link href="/book?s=paint" className="card" style={{ background: 'var(--deep)', color: 'var(--on-deep)', textDecoration: 'none', display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', alignItems: 'center', border: 'none' }}>
           <span>
             <span style={{ display: 'block', fontFamily: 'var(--display)', fontSize: 21 }}>Paint jobs</span>
-            <span style={{ color: 'var(--deep-soft)', fontSize: 14 }}>Recolors, touch-ups and custom designs. From {money(paint.price_cents)}. Snap it, tick “Paint”, and Criss prices it from your photos.</span>
+            <span style={{ color: 'var(--deep-soft)', fontSize: 14 }}>Recolors, touch-ups and custom designs. From {money(paint.price_cents)}. Snap it, tick “Paint”, and we price it from your photos.</span>
           </span>
           <span style={{ fontFamily: 'var(--mono)', color: 'var(--sky)' }}>Start with photos →</span>
         </Link>

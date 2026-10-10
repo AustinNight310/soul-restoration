@@ -322,7 +322,7 @@ function QuoteCard({ q, onAnswered }) {
       </div>
       <strong>{q.shoe_model || q.kind || 'Quote request'}</strong>
       <span className="soft small" style={{ whiteSpace: 'pre-line' }}>“{q.description}”</span>
-      {q.status === 'new' && <span className="small muted">Criss is looking it over and will reply with a price.</span>}
+      {q.status === 'new' && <span className="small muted">We’re looking it over and will reply with a price.</span>}
       {q.price_cents != null && ['priced', 'accepted'].includes(q.status) && (
         <span className="small">
           <strong style={{ fontFamily: 'var(--mono)' }}>{money(q.price_cents)}</strong>
@@ -331,7 +331,7 @@ function QuoteCard({ q, onAnswered }) {
         </span>
       )}
       {q.message && ['priced', 'accepted'].includes(q.status) && <span className="small">“{q.message}”</span>}
-      {q.status === 'accepted' && <span className="small muted">Criss will text you to set up the drop-off or pickup.</span>}
+      {q.status === 'accepted' && <span className="small muted">We’ll text you to set up the drop-off or pickup.</span>}
       {q.status === 'priced' && !expired && (
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <button className="btn primary small" disabled={busy} onClick={() => answer(true)}>Accept</button>

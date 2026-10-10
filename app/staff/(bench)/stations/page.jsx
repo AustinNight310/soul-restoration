@@ -48,7 +48,7 @@ export default function Stations() {
       <div className={p.posters}>
         {active.map((x, i) => (
           <article key={x.id} className={`${p.poster} ${only && only !== x.id ? p.skip : ''}`}>
-            <div className={p.posterBrand}>Soul·Restoration</div>
+            <div className={p.posterBrand}>Soul·Sneakers</div>
             <div className={p.posterNum}>Station {i + 1} of {active.length}</div>
             <div className={p.posterName}>{x.name}</div>
             <QR value={stationUrl(origin, x.id)} size={180} label={`QR code for ${x.name}`} />

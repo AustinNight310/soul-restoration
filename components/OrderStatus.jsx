@@ -53,7 +53,7 @@ export default function OrderStatus({ order }) {
 
       {order.handoff === 'pickup' ? (
         <p className="small" style={{ margin: 0 }}>
-          {order.pickup_status === 'confirmed' ? <>Pickup confirmed{order.pickup_time ? `: ${order.pickup_time}` : ''}.</> : 'Pickup requested. Criss will text you to confirm the time.'}
+          {order.pickup_status === 'confirmed' ? <>Pickup confirmed{order.pickup_time ? `: ${order.pickup_time}` : ''}.</> : 'Pickup requested. We’ll text you to confirm the time.'}
         </p>
       ) : order.shop_address && (
         <p className="small" style={{ margin: 0 }}><strong>Drop-off / pickup:</strong> {order.shop_address}. {order.shop_hours}</p>

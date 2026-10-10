@@ -10,7 +10,7 @@ import s from '../../staff.module.css';
 
 export default function OrderPage() {
   const id = useSearchParams().get('id');
-  const { userId } = useStaff();
+  const { userId, isAdmin } = useStaff();
   const [order, setOrder] = useState(null);
   const [error, setError] = useState('');
   const [flash, setFlash] = useState('');
@@ -68,7 +68,10 @@ export default function OrderPage() {
           <Assign {...ctx} />
           <Customer order={order} />
           <Activity order={order} />
-          {order.status !== 'cancelled' && (
+          {order.status !== 'cancelled' && !isAdmin && (
+            <p className="muted small" style={{ margin: 0 }}>Need to cancel this order? Ask an admin.</p>
+          )}
+          {order.status !== 'cancelled' && isAdmin && (
             <button className="btn ghost small" style={{ justifySelf: 'start', color: 'var(--danger)' }} disabled={busy}
               onClick={() => { if (window.confirm(`Cancel order #${order.number}?`)) update({ status: 'cancelled' }, 'cancelled', 'Cancelled by staff'); }}>
               Cancel this order

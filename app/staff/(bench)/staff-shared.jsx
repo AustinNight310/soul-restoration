@@ -1,6 +1,7 @@
 'use client';
 // What every staff page shares: who's signed in, the team (for names and assigning), and small helpers.
 import { createContext, useContext } from 'react';
+import Link from 'next/link';
 
 export const StaffContext = createContext(null);
 export const useStaff = () => useContext(StaffContext);
@@ -11,6 +12,19 @@ export const ORDER_SELECT = '*, order_items(name, price_cents, needs_quote, pair
   + 'order_events(status, note, created_at, created_by), order_photos(id, kind)';
 
 export const OPEN_FILTER = '(picked_up,cancelled)';
+
+// Admin pages: a worker who follows a link here sees this instead of the page.
+export function AdminOnly({ children }) {
+  const { isAdmin } = useStaff();
+  if (isAdmin) return children;
+  return (
+    <div className="soft" style={{ display: 'grid', gap: 10 }}>
+      <strong>Admins only.</strong>
+      <span className="muted small">Ask an admin if something here needs changing.</span>
+      <Link href="/staff" className="btn ghost small" style={{ justifySelf: 'start' }}>Back to the board</Link>
+    </div>
+  );
+}
 
 export function firstName(person) {
   if (!person) return '';

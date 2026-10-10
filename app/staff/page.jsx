@@ -8,10 +8,15 @@ import s from './staff.module.css';
 export default function StaffPage() {
   const [session, setSession] = useState(undefined);
   const [isStaff, setIsStaff] = useState(null);
+  const [recovering, setRecovering] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, sess) => setSession(sess));
+    const { data: sub } = supabase.auth.onAuthStateChange((event, sess) => {
+      // Opening the reset link from the email signs you in with a one-time "recovery" session.
+      if (event === 'PASSWORD_RECOVERY') setRecovering(true);
+      setSession(sess);
+    });
     return () => sub.subscription.unsubscribe();
   }, []);
 
@@ -22,6 +27,7 @@ export default function StaffPage() {
   }, [session]);
 
   if (session === undefined) return <p className="narrow muted" style={{ paddingTop: 32 }}>Loading…</p>;
+  if (recovering && session) return <NewPassword onDone={() => setRecovering(false)} />;
   if (!session) return <SignIn />;
   if (isStaff === null) return <p className="narrow muted" style={{ paddingTop: 32 }}>Checking access…</p>;
   if (!isStaff) {
@@ -36,35 +42,106 @@ export default function StaffPage() {
   return <Dashboard email={session.user.email} userId={session.user.id} />;
 }
 
+// Password field with a Show/Hide button so typos are easy to catch.
+function PasswordField({ label, value, onChange, autoComplete, show, setShow }) {
+  return (
+    <label className="field">{label}
+      <span style={{ position: 'relative', display: 'block' }}>
+        <input className="input" type={show ? 'text' : 'password'} autoComplete={autoComplete} minLength={8}
+          value={value} onChange={(e) => onChange(e.target.value)} required style={{ width: '100%', paddingRight: 64 }} />
+        <button type="button" onClick={() => setShow(!show)} className="small"
+          style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 0, color: 'var(--blue, #0A6FAE)', cursor: 'pointer', fontWeight: 600 }}>
+          {show ? 'Hide' : 'Show'}
+        </button>
+      </span>
+    </label>
+  );
+}
+
 function SignIn() {
-  const [mode, setMode] = useState('in');
+  const [mode, setMode] = useState('in'); // 'in' | 'up' | 'forgot'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [show, setShow] = useState(false);
+  const [msg, setMsg] = useState('');
+  const [note, setNote] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  function go(next) { setMode(next); setMsg(''); setNote(''); setPassword(''); setConfirm(''); }
+
+  async function submit(e) {
+    e.preventDefault();
+    setMsg(''); setNote('');
+    if (mode === 'up' && password !== confirm) return setMsg('The two passwords don’t match.');
+    setBusy(true);
+    let res;
+    if (mode === 'in') res = await supabase.auth.signInWithPassword({ email, password });
+    else if (mode === 'up') res = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/staff` } });
+    else res = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/staff` });
+    setBusy(false);
+    if (res.error) {
+      return setMsg(res.error.message === 'Invalid login credentials'
+        ? 'That email and password don’t match. Try again, or use “Forgot password?”.'
+        : res.error.message);
+    }
+    if (mode === 'up' && !res.data.session) setNote('Account created. Check your email to confirm it, then sign in here.');
+    if (mode === 'forgot') setNote('If that email has a login, a reset link is on its way. Open it on this device.');
+  }
+
+  const title = mode === 'in' ? 'Sign in to the bench.' : mode === 'up' ? 'Create a staff login.' : 'Reset your password.';
+  return (
+    <form onSubmit={submit} className="narrow" style={{ paddingTop: 36, paddingBottom: 40, display: 'grid', gap: 14 }}>
+      <div className="eyebrow">Staff</div>
+      <h1 style={{ fontSize: 34 }}>{title}</h1>
+      <label className="field">Email<input className="input" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
+      {mode !== 'forgot' && (
+        <PasswordField label={mode === 'up' ? 'Password (8+ characters)' : 'Password'} value={password} onChange={setPassword}
+          autoComplete={mode === 'in' ? 'current-password' : 'new-password'} show={show} setShow={setShow} />
+      )}
+      {mode === 'up' && (
+        <PasswordField label="Confirm password" value={confirm} onChange={setConfirm} autoComplete="new-password" show={show} setShow={setShow} />
+      )}
+      {msg && <p className="error" role="alert">{msg}</p>}
+      {note && <p className="muted" role="status" style={{ margin: 0 }}>{note}</p>}
+      <button className="btn primary block" disabled={busy}>
+        {busy ? 'One moment…' : mode === 'in' ? 'Sign in' : mode === 'up' ? 'Create login' : 'Email me a reset link'}
+      </button>
+      {mode === 'in' && <button type="button" className="btn ghost block" onClick={() => go('forgot')}>Forgot password?</button>}
+      <button type="button" className="btn ghost block" onClick={() => go(mode === 'in' ? 'up' : 'in')}>
+        {mode === 'in' ? 'First time? Create a staff login' : 'Back to sign in'}
+      </button>
+    </form>
+  );
+}
+
+function NewPassword({ onDone }) {
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [show, setShow] = useState(false);
   const [msg, setMsg] = useState('');
   const [busy, setBusy] = useState(false);
 
   async function submit(e) {
     e.preventDefault();
     setMsg('');
+    if (password !== confirm) return setMsg('The two passwords don’t match.');
     setBusy(true);
-    const fn = mode === 'in' ? supabase.auth.signInWithPassword : supabase.auth.signUp;
-    const { error, data } = await fn.call(supabase.auth, { email, password });
+    const { error } = await supabase.auth.updateUser({ password });
     setBusy(false);
     if (error) return setMsg(error.message);
-    if (mode === 'up' && !data.session) setMsg('Check your email to confirm the account, then sign in here.');
+    window.history.replaceState(null, '', '/staff');
+    onDone();
   }
 
   return (
     <form onSubmit={submit} className="narrow" style={{ paddingTop: 36, paddingBottom: 40, display: 'grid', gap: 14 }}>
       <div className="eyebrow">Staff</div>
-      <h1 style={{ fontSize: 34 }}>{mode === 'in' ? 'Sign in to the bench.' : 'Create a staff login.'}</h1>
-      <label className="field">Email<input className="input" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
-      <label className="field">Password<input className="input" type="password" autoComplete={mode === 'in' ? 'current-password' : 'new-password'} minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required /></label>
-      {msg && <p className="error" role="status">{msg}</p>}
-      <button className="btn primary block" disabled={busy}>{busy ? 'One moment…' : mode === 'in' ? 'Sign in' : 'Create login'}</button>
-      <button type="button" className="btn ghost block" onClick={() => setMode(mode === 'in' ? 'up' : 'in')}>
-        {mode === 'in' ? 'First time? Create a staff login' : 'Have a login? Sign in'}
-      </button>
+      <h1 style={{ fontSize: 34 }}>Pick a new password.</h1>
+      <PasswordField label="New password (8+ characters)" value={password} onChange={setPassword} autoComplete="new-password" show={show} setShow={setShow} />
+      <PasswordField label="Confirm new password" value={confirm} onChange={setConfirm} autoComplete="new-password" show={show} setShow={setShow} />
+      {msg && <p className="error" role="alert">{msg}</p>}
+      <button className="btn primary block" disabled={busy}>{busy ? 'Saving…' : 'Save and continue'}</button>
     </form>
   );
 }

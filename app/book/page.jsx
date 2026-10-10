@@ -1,6 +1,6 @@
 import PairFlow from '../../components/pairflow/PairFlow';
 
-export const metadata = { title: 'Book a service — Soul Restoration' };
+export const metadata = { title: 'Book a service — Soul Sneakers' };
 
 // /book?s=<service> (from the menu) starts the first pair with that service ticked.
 export default async function BookPage({ searchParams }) {

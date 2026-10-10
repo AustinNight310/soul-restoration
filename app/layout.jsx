@@ -6,7 +6,7 @@ import AccountButton from '../components/AccountButton';
 import { AuthProvider } from '../lib/auth';
 
 export const metadata = {
-  title: 'Soul Restoration — Sneaker restoration in the Bronx',
+  title: 'Soul Sneakers — Sneaker restoration in the Bronx',
   description: 'Deep cleaning, icing, reverse oxidation, sole repair, suede care and custom paint. Drop off in the Bronx or request a pickup.',
 };
 
@@ -29,7 +29,7 @@ export default function RootLayout({ children }) {
           <div className="testbar">Test version: no real payments are taken. Sample prices shown.</div>
           <header className="site-head">
             <div className="wrap">
-              <Link href="/" className="wordmark">Soul<span>·</span>Restoration</Link>
+              <Link href="/" className="wordmark">Soul<span>·</span>Sneakers</Link>
               <Nav />
               <AccountButton />
               <ThemeSwitch />
@@ -38,7 +38,7 @@ export default function RootLayout({ children }) {
           <main>{children}</main>
           <footer className="site-foot">
             <div className="wrap">
-              <span>© 2026 Soul Restoration · Bronx, NY</span>
+              <span>© 2026 Soul Sneakers · Bronx, NY</span>
               <span><a href="https://www.instagram.com/_soulsneakers__/" target="_blank" rel="noreferrer">Instagram @_soulsneakers__</a> · Text 347-238-9320</span>
               <Link href="/staff" className="muted">Staff</Link>
             </div>

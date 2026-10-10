@@ -307,7 +307,7 @@ function Assign({ order, update, busy }) {
 function Customer({ order }) {
   const phone = order.pickup_phone;
   const tel = phoneHref('tel', phone);
-  const sms = phoneHref('sms', phone, `Hi, it's Soul Restoration about order #${order.number}.`);
+  const sms = phoneHref('sms', phone, `Hi, it's Soul Sneakers about order #${order.number}.`);
   return (
     <div className="card" style={{ display: 'grid', gap: 8 }}>
       <strong>Customer</strong>

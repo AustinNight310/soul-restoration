@@ -1,4 +1,4 @@
-export const metadata = { title: 'Service terms — Soul Restoration' };
+export const metadata = { title: 'Service terms — Soul Sneakers' };
 
 // DRAFT placeholder for the shop test. Replace with lawyer-reviewed terms before taking real payments.
 export default function Terms() {

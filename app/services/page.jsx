@@ -2,7 +2,7 @@ import Menu from '../../components/Menu';
 import PairFlow from '../../components/pairflow/PairFlow';
 import styles from '../home.module.css';
 
-export const metadata = { title: 'Services and prices — Soul Restoration' };
+export const metadata = { title: 'Services and prices — Soul Sneakers' };
 
 export default function ServicesPage() {
   return (

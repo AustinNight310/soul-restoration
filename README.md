@@ -16,7 +16,12 @@ This is the **shop-test build**: real screens and real data, but no online payme
 | `/sign-in` | Customer sign-in: we email a link, no password |
 | `/account` | The signed-in customer's orders (open and past, each with its full status), quotes to accept or decline, and profile |
 | `/staff/sign-in` | Staff sign-in with a password, forgot password, and "set up your login" for new staff |
-| `/staff` | Staff dashboard: order board, move stages, confirm pickups, notes, price quotes |
+| `/staff` | The bench: open orders by stage, filter to your own or unassigned |
+| `/staff/order?id=…` | One order: move stages, check-in and bench photos (choose what the customer sees), assign, pickup time, notes, full history |
+| `/staff/search` | Every order, open or done, by number, email, phone, shoe or service |
+| `/staff/pickups` | Today's pickups in time order, upcoming ones, and requests that still need a time; call, text, map, mark collected |
+| `/staff/quotes` | Price paint and hefty-job quotes; see which ones customers accepted |
+| `/staff/ticket?id=…` | Printable 4×6 ticket per pair to keep with the shoes |
 
 ## How it's put together
 
@@ -90,6 +95,13 @@ update public.profiles set role = 'worker' where email = 'their@email.com';     
 The sign-in emails link back to `/account` and `/staff/sign-in`, so both must be allowed under
 Supabase → Authentication → URL Configuration → Redirect URLs (for example `https://<your domain>/**`).
 
+### Photos
+
+Staff take check-in and bench photos on the order page (phone camera or files). They're shrunk to
+1600px JPEGs and stored in the private `photos` bucket under `orders/<order id>/`, with a row in
+`order_photos`. New photos are visible to the customer (in their account) unless staff switch one to
+"Staff only". The storage rules only let a customer open visible photos of their own orders.
+
 ## Run locally
 
 ```bash
@@ -100,4 +112,4 @@ npm run dev
 
 ## Not built yet
 
-Stripe checkout and deposits, status emails, photo uploads, mail-in, repair map. See the build plan.
+Stripe checkout and deposits, status emails, mail-in, repair map. See the build plan.

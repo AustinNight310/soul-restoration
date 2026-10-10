@@ -147,7 +147,7 @@ station. Every pair's printed ticket has its own QR (and a typed code like `1042
 At a station, a worker taps **Scan** (top of every staff page) and scans the poster; the phone remembers that
 station for 12 hours. Then they scan a pair's ticket, tap **Start**, do the work, tick the checklist, and tap **Done**.
 
-`pair_action()` (migration `0012_stations.sql`) is the only way a pair moves, and it checks everything on the server:
+`pair_action()` (migration `0013_stations.sql`) is the only way a pair moves, and it checks everything on the server:
 
 - every required checklist line is ticked; at the Restoration bench, every booked service for that pair too;
 - check-in photos (Check-in) and finished photos (Quality check) were taken at that station, after the pair arrived there;

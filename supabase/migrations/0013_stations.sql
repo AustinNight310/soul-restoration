@@ -36,7 +36,7 @@ insert into public.stations (id, name, stage, sort, hint, checklist, services_ch
      {"label":"Check-in photos: both sides, toe, heel and soles","required":true},
      {"label":"Existing damage written in the notes","required":true},
      {"label":"Laces and insoles bagged with the ticket","required":false}]', false, 'intake', null, false),
-  ('inspect', 'Inspection', 'inspected', 20, 'Criss decides what the pair needs.',
+  ('inspect', 'Inspection', 'inspected', 20, 'Decide what the pair needs.',
    '[{"label":"Materials checked (leather, suede, mesh, knit)","required":true},
      {"label":"Booked services fit the pair","required":true},
      {"label":"Anything extra flagged for a quote","required":false}]', false, null, null, false),

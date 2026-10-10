@@ -17,6 +17,10 @@ This is the **shop-test build**: real screens and real data, but no online payme
 | `/account` | The signed-in customer's orders (open and past, each with its full status and expected ready date), how they want their pairs back (pick up or delivery), quotes to accept or decline, and profile |
 | `/staff/sign-in` | Staff sign-in with a password, forgot password, and "set up your login" for new staff |
 | `/staff` | The bench: open orders by stage, filter to your own or unassigned |
+| `/staff/floor` | Live: every pair in the shop by the station it's at; on hold, sent back, late, stale and never-scanned pairs flagged; today's moves person by person |
+| `/staff/station?id=…` | One station (its QR poster opens this): pairs here now, coming next, done here today, and a Scan button |
+| `/staff/pair?id=…` | One pair (its ticket QR opens this): start it at your station, tick the checklist, take photos, mark it done, or put it on hold / send it back |
+| `/staff/stations` | Station QR posters to print, and each station's checklist (admins edit) |
 | `/staff/order?id=…` | One order: move stages, check-in and bench photos (choose what the customer sees), assign, pickup time, notes, full history |
 | `/staff/calendar` | Pickups, deliveries and due dates by day, week or month, for everyone or just you. Drag a stop to a new time on a laptop, or use Change time anywhere; optionally text the customer the new time |
 | `/staff/search` | Every order, open or done, by number, email, phone, shoe or service |
@@ -133,6 +137,31 @@ chooses in their account: picked up at the shop (free) or delivered (the deliver
 until an admin sets it in `/staff/settings`. Customers see "fee set by the shop" until then, and each
 delivery keeps the fee from when it was requested. Deliveries show on the calendar next to pickups.
 Marking a delivery delivered moves the order to *Picked up*.
+
+### Stations and QR codes
+
+Every pair moves through stations (`stations` table): Check-in → Inspection → Prep → Restoration bench →
+Drying rack → Quality check → Ready shelf → Handoff. Print the posters on `/staff/stations` and hang one at each
+station. Every pair's printed ticket has its own QR (and a typed code like `1042-2` for when a camera won't read it).
+
+At a station, a worker taps **Scan** (top of every staff page) and scans the poster; the phone remembers that
+station for 12 hours. Then they scan a pair's ticket, tap **Start**, do the work, tick the checklist, and tap **Done**.
+
+`pair_action()` (migration `0013_stations.sql`) is the only way a pair moves, and it checks everything on the server:
+
+- every required checklist line is ticked; at the Restoration bench, every booked service for that pair too;
+- check-in photos (Check-in) and finished photos (Quality check) were taken at that station, after the pair arrived there;
+- the Drying rack and Ready shelf ask where the pair was put;
+- a pair reaches the Ready shelf only after Quality check is done, and Handoff only after the Ready shelf.
+  Admins can override with a reason;
+- a pair on hold can't move until someone clears the hold and says how it was sorted out;
+- **Send back** returns a pair to an earlier station with a reason.
+
+Each move is saved in `pair_moves` with who, where, server time, the ticks, and whether it was **scanned**
+(station poster and pair ticket both scanned) or **picked by hand**. Skipped stations and stations left
+unfinished are recorded too. The order's stage follows its slowest pair and only moves forward on its own,
+so the customer's tracking page matches what's actually on the benches. Admins edit checklists on `/staff/stations`;
+changes go in the activity log.
 
 ## Run locally
 

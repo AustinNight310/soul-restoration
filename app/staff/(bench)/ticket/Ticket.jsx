@@ -1,10 +1,13 @@
 'use client';
-// Bench tickets: one 4×6 card per pair (order number, pair, services to tick off, check-in note),
-// printed and kept with the shoes. Everything else on the page is hidden when printing.
+// Bench tickets: one 4×6 card per pair (order number, pair, services to tick off, check-in note, and
+// the pair's QR code for scanning it at each station), printed and kept with the shoes.
+// Everything else on the page is hidden when printing.
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '../../../../lib/supabase';
+import { pairUrl } from '../../../../lib/stations';
+import QR from '../../../../components/qr/QR';
 import { useStaff, firstName } from '../staff-shared';
 import s from './ticket.module.css';
 
@@ -13,6 +16,8 @@ export default function Ticket() {
   const { person } = useStaff();
   const [order, setOrder] = useState(null);
   const [error, setError] = useState('');
+  const [origin, setOrigin] = useState('');
+  useEffect(() => { setOrigin(window.location.origin); }, []);
 
   useEffect(() => {
     supabase.from('orders')
@@ -52,11 +57,21 @@ export default function Ticket() {
                   <div className={s.meta}>PAIR {p.position} OF {pairs.length}</div>
                 </div>
               </header>
-              <div className={s.shoe}>{p.shoe_model || 'Pair'}{p.shoe_size ? ` · ${p.shoe_size}` : ''}</div>
-              {p.shoe_color && <div>{p.shoe_color}</div>}
-              <ul className={s.list}>
-                {items.map((i, n) => <li key={n}><span className={s.box} aria-hidden="true" />{i.name}</li>)}
-              </ul>
+              <div className={s.body}>
+                <div style={{ minWidth: 0 }}>
+                  <div className={s.shoe}>{p.shoe_model || 'Pair'}{p.shoe_size ? ` · ${p.shoe_size}` : ''}</div>
+                  {p.shoe_color && <div>{p.shoe_color}</div>}
+                  <ul className={s.list}>
+                    {items.map((i, n) => <li key={n}><span className={s.box} aria-hidden="true" />{i.name}</li>)}
+                  </ul>
+                </div>
+                {p.id && origin && (
+                  <div className={s.qr}>
+                    <QR value={pairUrl(origin, p.id)} size={104} label={`QR code for pair ${p.position}`} />
+                    <div className={s.meta}>SCAN · {order.number}-{p.position}</div>
+                  </div>
+                )}
+              </div>
               {(p.notes || order.checkin_condition) && <div className={s.note}>{[order.checkin_condition, p.notes].filter(Boolean).join(' · ')}</div>}
               {who && <div className={s.meta} style={{ marginTop: 'auto' }}>ASSIGNED: {who.toUpperCase()}</div>}
             </article>

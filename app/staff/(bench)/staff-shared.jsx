@@ -8,7 +8,7 @@ export const useStaff = () => useContext(StaffContext);
 
 // Everything the board, search and order pages need about an order.
 export const ORDER_SELECT = '*, order_items(name, price_cents, needs_quote, pair_id), '
-  + 'order_pairs!order_pairs_order_id_fkey(id, position, shoe_model, shoe_size, shoe_color, notes), '
+  + 'order_pairs!order_pairs_order_id_fkey(id, position, shoe_model, shoe_size, shoe_color, notes, station_id, station_state, station_at, station_by, next_station_id, hold_note, spot), '
   + 'order_events(status, note, created_at, created_by), order_photos(id, kind)';
 
 export const OPEN_FILTER = '(picked_up,cancelled)';

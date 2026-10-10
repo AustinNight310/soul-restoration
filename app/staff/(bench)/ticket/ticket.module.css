@@ -16,3 +16,5 @@
   .sheet { display: block; }
   .ticket { border: 0; page-break-after: always; break-after: page; max-width: none; }
 }
+.body { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.qr { display: grid; justify-items: center; gap: 4px; flex: none; }

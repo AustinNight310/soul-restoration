@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase, stageLabel, serviceSummary } from '../../../lib/supabase';
 import { useStaff, ORDER_SELECT, OPEN_FILTER, firstName, shoes, pairCount } from './staff-shared';
+import { since } from '../../../lib/stations';
 import s from '../staff.module.css';
 
 const COLUMNS = [
@@ -70,6 +71,10 @@ export default function Board() {
 }
 
 function Ticket({ o, assignee }) {
+  const { station } = useStaff();
+  const pairs = [...(o.order_pairs || [])].sort((a, b) => a.position - b.position);
+  const held = pairs.filter((p) => p.station_state === 'held');
+  const where = pairs.filter((p) => p.station_id).map((p) => `${pairs.length > 1 ? `P${p.position} ` : ''}${station(p.station_id)?.name || ''}`);
   const needsPhotos = o.status === 'received' && !(o.order_photos || []).some((p) => p.kind === 'intake');
   const n = pairCount(o);
   return (
@@ -84,6 +89,8 @@ function Ticket({ o, assignee }) {
       {shoes(o) && <span className="muted small">{shoes(o)}</span>}
       {(o.status === 'inspected' || o.status === 'in_restoration') && <span className="small">{stageLabel(o.status)}</span>}
       {needsPhotos && <span className="small" style={{ color: 'var(--warn)' }}>Needs check-in photos</span>}
+      {where.length > 0 && <span className="small">At {where.join(' · ')}</span>}
+      {held.map((p) => <span key={p.id} className="small" style={{ color: 'var(--danger)' }}>On hold{pairs.length > 1 ? ` (P${p.position})` : ''} {since(p.station_at)}: {p.hold_note}</span>)}
       <span className={s.assignee}>
         {assignee
           ? <><span className={s.dot} aria-hidden="true">{firstName(assignee).charAt(0).toUpperCase()}</span>{firstName(assignee)}</>

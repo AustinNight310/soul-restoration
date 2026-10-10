@@ -32,7 +32,7 @@ export default function RootLayout({ children }) {
         <footer className="site-foot">
           <div className="wrap">
             <span>© 2026 Soul Restoration · Bronx, NY</span>
-            <span>Instagram @_soulsneakers_ · Text 347-238-9320</span>
+            <span><a href="https://www.instagram.com/_soulsneakers__/" target="_blank" rel="noreferrer">Instagram @_soulsneakers__</a> · Text 347-238-9320</span>
             <Link href="/staff" className="muted">Staff</Link>
           </div>
         </footer>

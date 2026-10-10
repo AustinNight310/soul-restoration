@@ -34,7 +34,7 @@ export default function Home() {
             Tap a pair to flip between before and after.{hasPhotos ? '' : ' Drawings for now; real photos are on the way.'}
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
-            <a className="btn ghost" href="https://instagram.com/_soulsneakers_" target="_blank" rel="noreferrer">More on Instagram @_soulsneakers_</a>
+            <a className="btn ghost" href="https://www.instagram.com/_soulsneakers__/" target="_blank" rel="noreferrer">More on Instagram @_soulsneakers__</a>
           </div>
         </div>
       </section>
